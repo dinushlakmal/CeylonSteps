@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0D1117"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Top Header -->
+        <TextView
+            android:id="@+id/tv_onboarding_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0.08"
+            android:text="EXPEDITION ONBOARDING"
+            android:textColor="#00E5FF"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_onboarding_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:letterSpacing="-0.02"
+            android:text="Welcome Explorer!"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_onboarding_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Set up your travel profile and Home Base to track exploration distances across Sri Lanka."
+            android:textColor="#9EABB8"
+            android:textSize="13sp" />
+
+        <!-- Profile Avatar Selector Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/layout_avatar_container"
+                android:layout_width="100dp"
+                android:layout_height="100dp">
+
+                <ImageView
+                    android:id="@+id/img_profile_preview"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:background="@drawable/bg_secondary_button"
+                    android:contentDescription="Profile Photo"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_footsteps"
+                    android:tint="#00E5FF" />
+
+                <TextView
+                    android:id="@+id/tv_avatar_initials"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="LF"
+                    android:textColor="#00E5FF"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <Button
+                android:id="@+id/btn_pick_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_secondary_button"
+                android:paddingHorizontal="16dp"
+                android:text="Select Avatar Photo"
+                android:textColor="#00E5FF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Input 1: User's Name -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Your Name"
+            android:textColor="#C9D1D9"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_user_name"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="e.g. Kasun Perera"
+            android:inputType="textPersonName"
+            android:paddingHorizontal="16dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#6E7681"
+            android:textSize="14sp" />
+
+        <!-- Input 3: Home Base Setup -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Home Base Location"
+            android:textColor="#C9D1D9"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Used as reference point to compute round-trip and expedition distance."
+            android:textColor="#8B949E"
+            android:textSize="11sp" />
+
+        <!-- Option A: GPS Auto-Detect Button -->
+        <Button
+            android:id="@+id/btn_gps_location"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_secondary_button"
+            android:text="📍 Use Current GPS Location"
+            android:textColor="#00E5FF"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:gravity="center"
+            android:text="— OR PASTE MAP LINK / COORDINATES —"
+            android:textColor="#6E7681"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <!-- Option B: Manual Map Link / Coordinates -->
+        <EditText
+            android:id="@+id/et_manual_location"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="Paste Google Maps URL or (6.9271, 79.8612)"
+            android:inputType="textUri"
+            android:paddingHorizontal="16dp"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#6E7681"
+            android:textSize="13sp" />
+
+        <!-- Detected Home Base Info Badge -->
+        <LinearLayout
+            android:id="@+id/layout_detected_home"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_secondary_button"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/tv_detected_home_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Colombo, Western Province"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_detected_coordinates"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="6.92710° N, 79.86120° E"
+                android:textColor="#00E5FF"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Google Sign-In Button -->
+        <Button
+            android:id="@+id/btn_google_signin"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="28dp"
+            android:backgroundTint="#FFFFFF"
+            android:textColor="#0D1117"
+            android:text="Sign In with Gmail 🔑"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <!-- Save Action Button -->
+        <Button
+            android:id="@+id/btn_save_start"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/bg_primary_button"
+            android:text="Save &amp; Start Journey 🚀"
+            android:textColor="#0D1117"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</ScrollView>

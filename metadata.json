@@ -1,0 +1,6 @@
+{
+  "name": "LankaFootprints",
+  "description": "Polarsteps-style Sri Lanka travel journal app with OpenStreetMap, offline Room database, interactive route maps, and photo memories.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
