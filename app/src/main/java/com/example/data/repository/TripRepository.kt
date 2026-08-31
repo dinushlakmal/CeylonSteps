@@ -16,6 +16,12 @@ class TripRepository(private val tripDao: TripLocationDao) {
     val allTrips: Flow<List<TripLocation>> = tripDao.getAllTrips()
     val pastTrips: Flow<List<TripLocation>> = tripDao.getPastTrips()
     val upcomingTrips: Flow<List<TripLocation>> = tripDao.getUpcomingTrips()
+    val recycledTrips: Flow<List<TripLocation>> = tripDao.getRecycledTrips()
+
+    suspend fun cleanOldRecycledTrips() {
+        val cutoff = System.currentTimeMillis() - 7L * 24L * 60L * 60L * 1000L
+        tripDao.deleteOldRecycledTrips(cutoff)
+    }
 
     suspend fun getAllTripsSync(): List<TripLocation> = tripDao.getAllTripsSync()
 

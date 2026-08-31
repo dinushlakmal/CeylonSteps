@@ -96,7 +96,7 @@ object GeoDistanceEngine {
         // 2. Try standard coordinate regex (e.g. "6.9271, 79.8612" or within Google Maps URLs)
         val matcher = COORDINATE_REGEX.matcher(input)
         if (matcher.find()) {
-            val matchedStr = matcher.group(0)
+            val matchedStr = matcher.group(0) ?: ""
             val parts = matchedStr.split(",")
             if (parts.size == 2) {
                 val lat = parts[0].trim().toDoubleOrNull()

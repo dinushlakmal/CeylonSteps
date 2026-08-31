@@ -1,0 +1,517 @@
+Initialized native services in: /opt/gradle/.gradle/native
+Initialized jansi services in: /opt/gradle/.gradle/native
+Removing 0 daemon stop events from registry
+Starting a Gradle Daemon, 1 busy Daemon could not be reused, use --status for details
+Starting process 'Gradle build daemon'. Working directory: /opt/gradle/.gradle/daemon/9.3.1 Command: /usr/lib/jvm/temurin-21-jdk-amd64/bin/java --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED --add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.prefs/java.util.prefs=ALL-UNNAMED --add-opens=java.base/java.nio.charset=ALL-UNNAMED --add-opens=java.base/java.net=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED --add-opens=java.xml/javax.xml.namespace=ALL-UNNAMED --add-opens=java.base/java.time=ALL-UNNAMED -Xmx4g -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -cp /opt/gradle/gradle-9.3.1/lib/gradle-daemon-main-9.3.1.jar -javaagent:/opt/gradle/gradle-9.3.1/lib/agents/gradle-instrumentation-agent-9.3.1.jar org.gradle.launcher.daemon.bootstrap.GradleDaemon 9.3.1
+Successfully started process 'Gradle build daemon'
+An attempt to start the daemon took 3.365 secs.
+The client will now receive all logging from the daemon (pid: 385). The daemon log file: /opt/gradle/.gradle/daemon/9.3.1/daemon-385.out.log
+Starting build in new daemon [memory: 4 GiB]
+Using 4 worker leases.
+Operational build model parameters: {requiresToolingModels=false, parallelProjectExecution=true, configureOnDemand=false, configurationCache=true, configurationCacheParallelStore=false, configurationCacheParallelLoad=true, isolatedProjects=false, parallelProjectConfiguration=false, intermediateModelCache=false, parallelToolingApiActions=true, invalidateCoupledProjects=false, modelAsProjectDependency=false, resilientModelBuilding=false}
+Received JVM installation metadata from '/usr/lib/jvm/temurin-21-jdk-amd64': {JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64, JAVA_VERSION=21.0.12, JAVA_VENDOR=Eclipse Adoptium, RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=21.0.12+8-LTS, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=21.0.12+8-LTS, VM_VENDOR=Eclipse Adoptium, OS_ARCH=amd64}
+Encryption key source: default Gradle keystore (pkcs12)
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/resourceHashesCache.bin
+Reusing configuration cache.
+Watching the file system is configured to be enabled if available
+Unable to list file systems to check whether they can be watched. Disabling watching. Reason: Could not query file systems: could not open mount file (errno 2: No such file or directory)
+File system watching is inactive
+Using local directory build cache for the root build (location = /opt/gradle/.gradle/caches/build-cache-1, remove unused entries = after 7 days).
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Tasks to be executed: [task ':app:preBuild', task ':app:preDebugBuild', task ':app:generateDebugBuildConfig', task ':app:generateDebugResources', task ':app:processDebugGoogleServices', task ':app:packageDebugResources', task ':app:processDebugNavigationResources', task ':app:parseDebugLocalResources', task ':app:generateDebugRFile', task ':app:kspDebugKotlin', task ':app:compileDebugKotlin', task ':app:javaPreCompileDebug', task ':app:compileDebugJavaWithJavac', task ':app:checkDebugAarMetadata', task ':app:mapDebugSourceSetPaths', task ':app:compileDebugNavigationResources', task ':app:mergeDebugResources', task ':app:createDebugCompatibleScreenManifests', task ':app:extractDeepLinksDebug', task ':app:processDebugMainManifest', task ':app:processDebugManifest', task ':app:processDebugManifestForPackage', task ':app:processDebugResources', task ':app:bundleDebugClassesToRuntimeJar', task ':app:bundleDebugClassesToCompileJar', task ':app:kspDebugUnitTestKotlin', task ':app:preDebugUnitTestBuild', task ':app:compileDebugUnitTestKotlin', task ':app:javaPreCompileDebugUnitTest', task ':app:compileDebugUnitTestJavaWithJavac', task ':app:generateDebugAssets', task ':app:mergeDebugAssets', task ':app:packageDebugUnitTestForUnitTest', task ':app:processDebugUnitTestManifest', task ':app:generateDebugUnitTestConfig', task ':app:processDebugJavaRes', task ':app:processDebugUnitTestJavaRes', task ':app:testDebugUnitTest', task ':app:finalizeTestRoborazziDebug']
+Tasks that were excluded: []
+Resolve mutations for :app:preBuild (Thread[#50,included builds,5,main]) started.
+Resolve mutations for :app:processDebugGoogleServices (Thread[#51,Execution worker,5,main]) started.
+Resolve mutations for :app:generateDebugAssets (Thread[#52,Execution worker Thread 2,5,main]) started.
+:app:generateDebugAssets (Thread[#52,Execution worker Thread 2,5,main]) started.
+:app:preBuild (Thread[#50,included builds,5,main]) started.
+:app:processDebugGoogleServices (Thread[#51,Execution worker,5,main]) started.
+
+> Task :app:generateDebugAssets UP-TO-DATE
+Skipping task ':app:generateDebugAssets' as it has no actions.
+
+> Task :app:preBuild UP-TO-DATE
+Skipping task ':app:preBuild' as it has no actions.
+Resolve mutations for :app:preDebugBuild (Thread[#50,included builds,5,main]) started.
+:app:preDebugBuild (Thread[#50,included builds,5,main]) started.
+
+> Task :app:preDebugBuild UP-TO-DATE
+Skipping task ':app:preDebugBuild' as it has no actions.
+Resolve mutations for :app:generateDebugBuildConfig (Thread[#50,included builds,5,main]) started.
+Resolve mutations for :app:generateDebugResources (Thread[#52,Execution worker Thread 2,5,main]) started.
+:app:generateDebugBuildConfig (Thread[#50,included builds,5,main]) started.
+Resolve mutations for :app:processDebugNavigationResources (Thread[#53,Execution worker Thread 3,5,main]) started.
+:app:generateDebugResources (Thread[#52,Execution worker Thread 2,5,main]) started.
+:app:processDebugNavigationResources (Thread[#53,Execution worker Thread 3,5,main]) started.
+Build 855fbba3-ae43-4548-b198-17cbf50cd67d is started
+
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+Build cache key for task ':app:generateDebugBuildConfig' is c4a88431d19c8f85fc990e90c656dc30
+Skipping task ':app:generateDebugBuildConfig' as it is up-to-date.
+
+> Task :app:processDebugGoogleServices UP-TO-DATE
+Build cache key for task ':app:processDebugGoogleServices' is 2548eba8abb7d1f7551c1e6e7a96e633
+Skipping task ':app:processDebugGoogleServices' as it is up-to-date.
+Resolve mutations for :app:javaPreCompileDebug (Thread[#51,Execution worker,5,main]) started.
+Resolve mutations for :app:kspDebugKotlin (Thread[#50,included builds,5,main]) started.
+:app:javaPreCompileDebug (Thread[#51,Execution worker,5,main]) started.
+:app:kspDebugKotlin (Thread[#50,included builds,5,main]) started.
+
+> Task :app:javaPreCompileDebug UP-TO-DATE
+Build cache key for task ':app:javaPreCompileDebug' is 99b4551276d6e7585b4ec3e90b410758
+Skipping task ':app:javaPreCompileDebug' as it is up-to-date.
+Resolve mutations for :app:checkDebugAarMetadata (Thread[#51,Execution worker,5,main]) started.
+:app:checkDebugAarMetadata (Thread[#51,Execution worker,5,main]) started.
+
+> Task :app:generateDebugResources
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/resourceHashesCache.bin
+Build cache key for task ':app:generateDebugResources' is 3cbb8c6a46b4b211274d4d94ab5e9a8f
+Task ':app:generateDebugResources' is not up-to-date because:
+  Input property 'resources.$0.sourceDirectories' file /app/applet/app/src/main/res/drawable/ic_ceylonsteps_brand_logo.xml has changed.
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/resourceHashesCache.bin
+
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+Caching disabled for task ':app:checkDebugAarMetadata' because:
+  Caching has been disabled for the task
+Skipping task ':app:checkDebugAarMetadata' as it is up-to-date.
+Resolve mutations for :app:mapDebugSourceSetPaths (Thread[#51,Execution worker,5,main]) started.
+:app:mapDebugSourceSetPaths (Thread[#51,Execution worker,5,main]) started.
+
+> Task :app:processDebugNavigationResources
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Build cache key for task ':app:processDebugNavigationResources' is 09229654a3a23619552b1bd59dfdc36a
+Task ':app:processDebugNavigationResources' is not up-to-date because:
+  Input property 'resources.$0.sourceDirectories' file /app/applet/app/src/main/res/drawable/ic_ceylonsteps_brand_logo.xml has changed.
+
+> Task :app:mapDebugSourceSetPaths
+Caching disabled for task ':app:mapDebugSourceSetPaths' because:
+  Caching has been disabled for the task
+Task ':app:mapDebugSourceSetPaths' is not up-to-date because:
+  Input property 'localResources' file /app/applet/app/src/main/res/drawable/ic_ceylonsteps_brand_logo.xml has changed.
+Resolve mutations for :app:createDebugCompatibleScreenManifests (Thread[#51,Execution worker,5,main]) started.
+:app:createDebugCompatibleScreenManifests (Thread[#51,Execution worker,5,main]) started.
+
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+Caching disabled for task ':app:createDebugCompatibleScreenManifests' because:
+  Caching has been disabled for the task
+Skipping task ':app:createDebugCompatibleScreenManifests' as it is up-to-date.
+Resolve mutations for :app:extractDeepLinksDebug (Thread[#51,Execution worker,5,main]) started.
+:app:extractDeepLinksDebug (Thread[#51,Execution worker,5,main]) started.
+
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+Build cache key for task ':app:extractDeepLinksDebug' is 712163289ca64e566047a8749b879de2
+Skipping task ':app:extractDeepLinksDebug' as it is up-to-date.
+Resolve mutations for :app:processDebugMainManifest (Thread[#51,Execution worker,5,main]) started.
+:app:processDebugMainManifest (Thread[#51,Execution worker,5,main]) started.
+
+> Task :app:kspDebugKotlin UP-TO-DATE
+Build cache key for task ':app:kspDebugKotlin' is 8a3b70c63f52e1649a0aa13218d98766
+Skipping task ':app:kspDebugKotlin' as it is up-to-date.
+Resolve mutations for :app:preDebugUnitTestBuild (Thread[#50,included builds,5,main]) started.
+:app:preDebugUnitTestBuild (Thread[#50,included builds,5,main]) started.
+
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+Skipping task ':app:preDebugUnitTestBuild' as it has no actions.
+Resolve mutations for :app:javaPreCompileDebugUnitTest (Thread[#50,included builds,5,main]) started.
+:app:javaPreCompileDebugUnitTest (Thread[#50,included builds,5,main]) started.
+
+> Task :app:javaPreCompileDebugUnitTest UP-TO-DATE
+Build cache key for task ':app:javaPreCompileDebugUnitTest' is fce8b791155a816ba2ee711fb41b3e78
+Skipping task ':app:javaPreCompileDebugUnitTest' as it is up-to-date.
+Resolve mutations for :app:mergeDebugAssets (Thread[#50,included builds,5,main]) started.
+:app:mergeDebugAssets (Thread[#50,included builds,5,main]) started.
+
+> Task :app:processDebugMainManifest UP-TO-DATE
+Build cache key for task ':app:processDebugMainManifest' is 932cff65ee51c825d9e574aeccbe07e6
+Skipping task ':app:processDebugMainManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugManifest (Thread[#51,Execution worker,5,main]) started.
+
+> Task :app:mergeDebugAssets UP-TO-DATE
+Caching disabled for task ':app:mergeDebugAssets' because:
+  Simple merging task
+Skipping task ':app:mergeDebugAssets' as it is up-to-date.
+work action resolve navigation.json (project :app) (Thread[#50,included builds,5,main]) started.
+Resolve mutations for :app:processDebugUnitTestManifest (Thread[#50,included builds,5,main]) started.
+:app:processDebugUnitTestManifest (Thread[#50,included builds,5,main]) started.
+:app:processDebugManifest (Thread[#51,Execution worker,5,main]) started.
+
+> Task :app:processDebugManifest UP-TO-DATE
+Build cache key for task ':app:processDebugManifest' is 8b4c8e29c1108d2dc59598ddf5c1b099
+Skipping task ':app:processDebugManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugManifestForPackage (Thread[#51,Execution worker,5,main]) started.
+:app:processDebugManifestForPackage (Thread[#51,Execution worker,5,main]) started.
+
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+Build cache key for task ':app:processDebugManifestForPackage' is 41c12ad0942ff9d887c41fe261213d3c
+Skipping task ':app:processDebugManifestForPackage' as it is up-to-date.
+
+> Task :app:processDebugUnitTestManifest UP-TO-DATE
+Caching disabled for task ':app:processDebugUnitTestManifest' because:
+  Caching has been disabled for the task
+Skipping task ':app:processDebugUnitTestManifest' as it is up-to-date.
+
+> Task :app:generateDebugResources
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Stored cache entry for task ':app:generateDebugResources' with cache key 3cbb8c6a46b4b211274d4d94ab5e9a8f
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/executionHistory/executionHistory.bin
+Invalidating in-memory cache of /app/applet/.gradle/buildOutputCleanup/outputFiles.bin
+
+> Task :app:processDebugNavigationResources
+Stored cache entry for task ':app:processDebugNavigationResources' with cache key 09229654a3a23619552b1bd59dfdc36a
+Resolve mutations for :app:compileDebugNavigationResources (Thread[#53,Execution worker Thread 3,5,main]) started.
+Resolve mutations for :app:packageDebugResources (Thread[#52,Execution worker Thread 2,5,main]) started.
+Resolve mutations for :app:mergeDebugResources (Thread[#50,included builds,5,main]) started.
+:app:compileDebugNavigationResources (Thread[#53,Execution worker Thread 3,5,main]) started.
+
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+Build cache key for task ':app:compileDebugNavigationResources' is 57512bfda521cc11800d9fc58ee88345
+Skipping task ':app:compileDebugNavigationResources' as it is up-to-date.
+:app:mergeDebugResources (Thread[#50,included builds,5,main]) started.
+:app:packageDebugResources (Thread[#52,Execution worker Thread 2,5,main]) started.
+
+> Task :app:packageDebugResources
+Build cache key for task ':app:packageDebugResources' is c2a84d62ecf8c5d0a3dd30ae14867d71
+Task ':app:packageDebugResources' is not up-to-date because:
+  Input property 'resourcesComputer.resources.main.sourceDirectories' file /app/applet/app/src/main/res/drawable/ic_ceylonsteps_brand_logo.xml has changed.
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/resourceHashesCache.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Stored cache entry for task ':app:packageDebugResources' with cache key c2a84d62ecf8c5d0a3dd30ae14867d71
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/executionHistory/executionHistory.bin
+Invalidating in-memory cache of /app/applet/.gradle/buildOutputCleanup/outputFiles.bin
+Resolve mutations for :app:parseDebugLocalResources (Thread[#52,Execution worker Thread 2,5,main]) started.
+:app:parseDebugLocalResources (Thread[#52,Execution worker Thread 2,5,main]) started.
+
+> Task :app:mergeDebugResources
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/resourceHashesCache.bin
+Build cache key for task ':app:mergeDebugResources' is 04121e0db7ff65984e8a3c4331accb1e
+Task ':app:mergeDebugResources' is not up-to-date because:
+  Input property 'resourcesComputer.resources.main.sourceDirectories' file /app/applet/app/src/main/res/drawable/ic_ceylonsteps_brand_logo.xml has changed.
+Compiling xml file /app/applet/app/src/main/res/drawable/ic_ceylonsteps_brand_logo.xml to /app/applet/app/build/intermediates/merged_res/debug/mergeDebugResources/drawable_ic_ceylonsteps_brand_logo.xml.flat
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/resourceHashesCache.bin
+
+> Task :app:parseDebugLocalResources
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Build cache key for task ':app:parseDebugLocalResources' is 721c0fea07736c4d88fd98eb16373fba
+Task ':app:parseDebugLocalResources' is not up-to-date because:
+  Input property 'inputResourcesDir' file /app/applet/app/build/intermediates/packaged_res/debug/packageDebugResources/drawable/ic_ceylonsteps_brand_logo.xml has changed.
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Stored cache entry for task ':app:parseDebugLocalResources' with cache key 721c0fea07736c4d88fd98eb16373fba
+Resolve mutations for :app:generateDebugRFile (Thread[#52,Execution worker Thread 2,5,main]) started.
+:app:generateDebugRFile (Thread[#52,Execution worker Thread 2,5,main]) started.
+
+> Task :app:generateDebugRFile UP-TO-DATE
+Build cache key for task ':app:generateDebugRFile' is d7ab8453e321fb4a60e045ec90cec661
+Skipping task ':app:generateDebugRFile' as it is up-to-date.
+Resolve mutations for :app:compileDebugKotlin (Thread[#52,Execution worker Thread 2,5,main]) started.
+:app:compileDebugKotlin (Thread[#52,Execution worker Thread 2,5,main]) started.
+
+> Task :app:mergeDebugResources
+Stored cache entry for task ':app:mergeDebugResources' with cache key 04121e0db7ff65984e8a3c4331accb1e
+Resolve mutations for :app:processDebugResources (Thread[#50,included builds,5,main]) started.
+:app:processDebugResources (Thread[#50,included builds,5,main]) started.
+
+> Task :app:compileDebugKotlin UP-TO-DATE
+file or directory '/app/applet/app/src/main/kotlin', not found
+file or directory '/app/applet/app/src/debug/java', not found
+file or directory '/app/applet/app/src/debug/kotlin', not found
+file or directory '/app/applet/app/src/debug/java', not found
+file or directory '/app/applet/app/src/main/kotlin', not found
+file or directory '/app/applet/app/src/debug/java', not found
+file or directory '/app/applet/app/src/debug/kotlin', not found
+file or directory '/app/applet/app/src/debug/java', not found
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+file or directory '/app/applet/app/src/main/kotlin', not found
+file or directory '/app/applet/app/src/debug/java', not found
+file or directory '/app/applet/app/src/debug/kotlin', not found
+file or directory '/app/applet/app/src/debug/java', not found
+Build cache key for task ':app:compileDebugKotlin' is a1096c9abdc9c3286e07e7086c4d2003
+Skipping task ':app:compileDebugKotlin' as it is up-to-date.
+Resolve mutations for :app:compileDebugJavaWithJavac (Thread[#52,Execution worker Thread 2,5,main]) started.
+Resolve mutations for :app:processDebugJavaRes (Thread[#53,Execution worker Thread 3,5,main]) started.
+:app:processDebugJavaRes (Thread[#53,Execution worker Thread 3,5,main]) started.
+:app:compileDebugJavaWithJavac (Thread[#52,Execution worker Thread 2,5,main]) started.
+
+> Task :app:processDebugJavaRes UP-TO-DATE
+file or directory '/app/applet/app/src/main/resources', not found
+file or directory '/app/applet/app/src/debug/resources', not found
+Caching disabled for task ':app:processDebugJavaRes' because:
+  Caching has been disabled for the task
+Skipping task ':app:processDebugJavaRes' as it is up-to-date.
+work action resolve out (project :app) (Thread[#53,Execution worker Thread 3,5,main]) started.
+
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+Build cache key for task ':app:compileDebugJavaWithJavac' is 6bfb207b2358712916492d5b44c5808f
+Skipping task ':app:compileDebugJavaWithJavac' as it is up-to-date.
+No compile result for :app:compileDebugJavaWithJavac
+
+> Task :app:processDebugResources
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Build cache key for task ':app:processDebugResources' is 7b37ce9aeb485bbe729b7666f3b52c14
+Task ':app:processDebugResources' is not up-to-date because:
+  Input property 'inputResourcesDir' file /app/applet/app/build/intermediates/merged_res/debug/mergeDebugResources/drawable_ic_ceylonsteps_brand_logo.xml.flat has changed.
+AAPT2 aapt2-9.1.1-14792394-linux Daemon #0: starting
+Aapt output file /app/applet/app/build/intermediates/linked_resources_binary_format/debug/processDebugResources/linked-resources-binary-format-debug.ap_
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Stored cache entry for task ':app:processDebugResources' with cache key 7b37ce9aeb485bbe729b7666f3b52c14
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/executionHistory/executionHistory.bin
+Invalidating in-memory cache of /app/applet/.gradle/buildOutputCleanup/outputFiles.bin
+Resolve mutations for :app:bundleDebugClassesToRuntimeJar (Thread[#50,included builds,5,main]) started.
+:app:bundleDebugClassesToRuntimeJar (Thread[#50,included builds,5,main]) started.
+Resolve mutations for :app:bundleDebugClassesToCompileJar (Thread[#51,Execution worker,5,main]) started.
+Resolve mutations for :app:packageDebugUnitTestForUnitTest (Thread[#52,Execution worker Thread 2,5,main]) started.
+:app:bundleDebugClassesToCompileJar (Thread[#51,Execution worker,5,main]) started.
+:app:packageDebugUnitTestForUnitTest (Thread[#52,Execution worker Thread 2,5,main]) started.
+
+> Task :app:bundleDebugClassesToCompileJar UP-TO-DATE
+Caching disabled for task ':app:bundleDebugClassesToCompileJar' because:
+  Caching has been disabled for the task
+Skipping task ':app:bundleDebugClassesToCompileJar' as it is up-to-date.
+work action resolve classes.jar (project :app) (Thread[#51,Execution worker,5,main]) started.
+Resolve mutations for :app:kspDebugUnitTestKotlin (Thread[#51,Execution worker,5,main]) started.
+:app:kspDebugUnitTestKotlin (Thread[#51,Execution worker,5,main]) started.
+
+> Task :app:bundleDebugClassesToRuntimeJar UP-TO-DATE
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/resourceHashesCache.bin
+Caching disabled for task ':app:bundleDebugClassesToRuntimeJar' because:
+  Caching has been disabled for the task
+Skipping task ':app:bundleDebugClassesToRuntimeJar' as it is up-to-date.
+work action resolve classes.jar (project :app) (Thread[#50,included builds,5,main]) started.
+
+> Task :app:packageDebugUnitTestForUnitTest
+Caching disabled for task ':app:packageDebugUnitTestForUnitTest' because:
+  Simple merging task
+Task ':app:packageDebugUnitTestForUnitTest' is not up-to-date because:
+  Input property 'resApk' file /app/applet/app/build/intermediates/linked_resources_binary_format/debug/processDebugResources/linked-resources-binary-format-debug.ap_ has been added.
+  Input property 'resApk' file /app/applet/app/build/intermediates/linked_resources_binary_format/debug/processDebugResources/linked-resources-binary-format-debug.ap_ has been removed.
+Resolve mutations for :app:generateDebugUnitTestConfig (Thread[#52,Execution worker Thread 2,5,main]) started.
+:app:generateDebugUnitTestConfig (Thread[#52,Execution worker Thread 2,5,main]) started.
+
+> Task :app:generateDebugUnitTestConfig
+Caching disabled for task ':app:generateDebugUnitTestConfig' because:
+  Caching has been disabled for the task
+Task ':app:generateDebugUnitTestConfig' is not up-to-date because:
+  Input property 'testConfigInputs.resourceApk' file /app/applet/app/build/intermediates/apk_for_local_test/debugUnitTest/packageDebugUnitTestForUnitTest/apk-for-local-test.ap_ has changed.
+
+> Task :app:kspDebugUnitTestKotlin UP-TO-DATE
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Build cache key for task ':app:kspDebugUnitTestKotlin' is e88eb3a0b3d477ffffb49fcfd4b05eaf
+Skipping task ':app:kspDebugUnitTestKotlin' as it is up-to-date.
+Resolve mutations for :app:compileDebugUnitTestKotlin (Thread[#51,Execution worker,5,main]) started.
+:app:compileDebugUnitTestKotlin (Thread[#51,Execution worker,5,main]) started.
+
+> Task :app:compileDebugUnitTestKotlin
+file or directory '/app/applet/app/src/test/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/test/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+Build cache key for BuildToolsApiClasspathEntrySnapshotTransform: /app/applet/app/build/intermediates/compile_and_runtime_r_class_jar/debug/processDebugResources/R.jar is ad56d4f045351abc0e297e02b362e0bd
+Build cache key for BuildToolsApiClasspathEntrySnapshotTransform: /app/applet/app/build/intermediates/compile_app_classes_jar/debug/bundleDebugClassesToCompileJar/classes.jar is 66b26b88dcace905ba56064c4c18d80c
+Build cache key for BuildToolsApiClasspathEntrySnapshotTransform: /opt/gradle/.gradle/caches/9.3.1/transforms/b49cffc15ed61c2f1fcac218863725cf/transformed/ui-test-release-api.jar is 3f12588db31042e15460b33781fc9620
+Build cache key for BuildToolsApiClasspathEntrySnapshotTransform: /opt/gradle/.gradle/caches/9.3.1/transforms/7401df534e53808119908e56f52b4801/transformed/roborazzi-core-release-api.jar is fb75bd081c26dec55681728ef53807de
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Stored cache entry for BuildToolsApiClasspathEntrySnapshotTransform: /opt/gradle/.gradle/caches/9.3.1/transforms/7401df534e53808119908e56f52b4801/transformed/roborazzi-core-release-api.jar with cache key fb75bd081c26dec55681728ef53807de
+Stored cache entry for BuildToolsApiClasspathEntrySnapshotTransform: /opt/gradle/.gradle/caches/9.3.1/transforms/b49cffc15ed61c2f1fcac218863725cf/transformed/ui-test-release-api.jar with cache key 3f12588db31042e15460b33781fc9620
+Stored cache entry for BuildToolsApiClasspathEntrySnapshotTransform: /app/applet/app/build/intermediates/compile_and_runtime_r_class_jar/debug/processDebugResources/R.jar with cache key ad56d4f045351abc0e297e02b362e0bd
+Stored cache entry for BuildToolsApiClasspathEntrySnapshotTransform: /app/applet/app/build/intermediates/compile_app_classes_jar/debug/bundleDebugClassesToCompileJar/classes.jar with cache key 66b26b88dcace905ba56064c4c18d80c
+Build cache key for BuildToolsApiClasspathEntrySnapshotTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/33.4.8-jre/cb7510a733595f02fe633ffff62d40cfc3056e9/guava-33.4.8-android.jar is 3532a9b50f0349152218adbd65a2936e
+Build cache key for BuildToolsApiClasspathEntrySnapshotTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcprov-jdk18on/1.81/d17c094daef57dbd80af71687a475aa6df7cbe54/bcprov-jdk18on-1.81.jar is f310bda2455e810f7eaf87fe7720e722
+Build cache key for BuildToolsApiClasspathEntrySnapshotTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/com.ibm.icu/icu4j/77.1/38693cf0b1d7362a8b726af74dc06026a7c23809/icu4j-77.1.jar is 736a74f299f603fece4b97bf86d9911f
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Stored cache entry for BuildToolsApiClasspathEntrySnapshotTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/com.ibm.icu/icu4j/77.1/38693cf0b1d7362a8b726af74dc06026a7c23809/icu4j-77.1.jar with cache key 736a74f299f603fece4b97bf86d9911f
+Stored cache entry for BuildToolsApiClasspathEntrySnapshotTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/com.google.guava/guava/33.4.8-jre/cb7510a733595f02fe633ffff62d40cfc3056e9/guava-33.4.8-android.jar with cache key 3532a9b50f0349152218adbd65a2936e
+Stored cache entry for BuildToolsApiClasspathEntrySnapshotTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/org.bouncycastle/bcprov-jdk18on/1.81/d17c094daef57dbd80af71687a475aa6df7cbe54/bcprov-jdk18on-1.81.jar with cache key f310bda2455e810f7eaf87fe7720e722
+file or directory '/app/applet/app/src/test/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+Build cache key for task ':app:compileDebugUnitTestKotlin' is 231696e0d64cd0b6c245f7de21cbfd0a
+Task ':app:compileDebugUnitTestKotlin' is not up-to-date because:
+  No history is available.
+The input changes require a full rebuild for incremental task ':app:compileDebugUnitTestKotlin'.
+file or directory '/app/applet/app/src/test/kotlin', not found
+file or directory '/app/applet/app/src/test/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/build/generated/ksp/debugUnitTest/java', not found
+file or directory '/app/applet/app/build/generated/ksp/debugUnitTest/kotlin', not found
+file or directory '/app/applet/app/src/test/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/test/kotlin', not found
+file or directory '/app/applet/app/src/test/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/build/generated/ksp/debugUnitTest/java', not found
+file or directory '/app/applet/app/build/generated/ksp/debugUnitTest/kotlin', not found
+file or directory '/app/applet/app/src/test/kotlin', not found
+file or directory '/app/applet/app/src/test/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/build/generated/ksp/debugUnitTest/java', not found
+file or directory '/app/applet/app/build/generated/ksp/debugUnitTest/kotlin', not found
+file or directory '/app/applet/app/src/test/kotlin', not found
+file or directory '/app/applet/app/src/test/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/kotlin', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/src/testDebug/java', not found
+file or directory '/app/applet/app/build/generated/ksp/debugUnitTest/java', not found
+file or directory '/app/applet/app/build/generated/ksp/debugUnitTest/kotlin', not found
+Kotlin source files: /app/applet/app/src/test/java/com/example/ExampleUnitTest.kt, /app/applet/app/src/test/java/com/example/ExampleRobolectricTest.kt, /app/applet/app/src/test/java/com/example/GreetingScreenshotTest.kt, /app/applet/app/src/test/java/com/example/SplashCrashTest.kt
+Java source files: 
+Script source files: 
+Script file extensions: 
+Using Kotlin/JVM incremental compilation
+[KOTLIN] Kotlin compilation 'jdkHome' argument: /usr/lib/jvm/temurin-21-jdk-amd64
+Finished executing kotlin compiler using IN_PROCESS strategy
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/resourceHashesCache.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Stored cache entry for task ':app:compileDebugUnitTestKotlin' with cache key 231696e0d64cd0b6c245f7de21cbfd0a
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/executionHistory/executionHistory.bin
+Invalidating in-memory cache of /app/applet/.gradle/buildOutputCleanup/outputFiles.bin
+Resolve mutations for :app:compileDebugUnitTestJavaWithJavac (Thread[#51,Execution worker,5,main]) started.
+Resolve mutations for :app:processDebugUnitTestJavaRes (Thread[#53,Execution worker Thread 3,5,main]) started.
+:app:processDebugUnitTestJavaRes (Thread[#53,Execution worker Thread 3,5,main]) started.
+:app:compileDebugUnitTestJavaWithJavac (Thread[#51,Execution worker,5,main]) started.
+
+> Task :app:compileDebugUnitTestJavaWithJavac NO-SOURCE
+Skipping task ':app:compileDebugUnitTestJavaWithJavac' as it has no source files and no previous output files.
+
+> Task :app:processDebugUnitTestJavaRes UP-TO-DATE
+file or directory '/app/applet/app/src/test/resources', not found
+file or directory '/app/applet/app/src/testDebug/resources', not found
+Caching disabled for task ':app:processDebugUnitTestJavaRes' because:
+  Caching has been disabled for the task
+Skipping task ':app:processDebugUnitTestJavaRes' as it is up-to-date.
+Resolve mutations for :app:testDebugUnitTest (Thread[#53,Execution worker Thread 3,5,main]) started.
+:app:testDebugUnitTest (Thread[#53,Execution worker Thread 3,5,main]) started.
+
+> Task :app:testDebugUnitTest
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.work/work-runtime/2.9.0/f8ad8e562534988dd0aad7ebcab42c807db26dfc/work-runtime-2.9.0.aar because:
+  Caching not enabled.
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.room/room-ktx/2.7.0/8a03e3478e253f52680fbb71cf44de3ccf2c0e54/room-ktx-2.7.0.aar because:
+  Caching not enabled.
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.appcompat/appcompat/1.6.1/6c7577004b7ebbee5ed87d512b578dd20e3c8c31/appcompat-1.6.1.aar because:
+  Caching not enabled.
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-test-junit4-android/1.7.2/c16110d3cebce1c267fc12d9b14f7c7a76fef4b8/ui-test-junit4-release.aar because:
+  Caching not enabled.
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.compose.foundation/foundation-android/1.7.2/d387fa57c5cae1fe097c0246d2f7508efb5fecc4/foundation-release.aar because:
+  Caching not enabled.
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.compose.foundation/foundation-layout-android/1.7.2/223276b3d0cb07892435be2300216053304de831/foundation-layout-release.aar because:
+  Caching not enabled.
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-tooling-data-android/1.7.2/5a4e365a36b912f9e41e8e2e167b603e63754487/ui-tooling-data-release.aar because:
+  Caching not enabled.
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-tooling-preview-android/1.7.2/ff32ad37ced8828f0847dbd1c8931d0595a17949/ui-tooling-preview-release.aar because:
+  Caching not enabled.
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.compose.animation/animation-core-android/1.7.2/e00dfb3540c73196c4ad2286335adf9b5af03249/animation-core-release.aar because:
+  Caching not enabled.
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-unit-android/1.7.2/602b1355e85011db2d9ec59639a21dbe68ebff7/ui-unit-release.aar because:
+  Caching not enabled.
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-text-android/1.7.2/72205c12a593b5aaa43948aca2e753d1e492a1df/ui-text-release.aar because:
+  Caching not enabled.
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.compose.ui/ui-graphics-android/1.7.2/b44e67e9f3d5b9c0332659b35cd77f0193ace47b/ui-graphics-release.aar because:
+  Caching not enabled.
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Caching disabled for AarToClassTransform: /opt/gradle/.gradle/caches/modules-2/files-2.1/androidx.compose.material/material-icons-extended-android/1.7.0/f5aef802f3fe8e45aeeec1cf4a03058809b6f555/material-icons-extended-release.aar because:
+  Caching not enabled.
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/resourceHashesCache.bin
+Build cache key for MockableJarTransform: /opt/android/sdk/platforms/android-36.1/android.jar is 4340c1b077a7aefd1a5d4553c00442f2
+Calling mockable JAR artifact transform to create file: /opt/gradle/.gradle/caches/9.3.1/transforms/1594a48e28719e29ec2898e1d0cc286b-cda704bc-08de-4a6c-a438-c65d1f01c741/transformed/android.jar with input /opt/android/sdk/platforms/android-36.1/android.jar
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Stored cache entry for MockableJarTransform: /opt/android/sdk/platforms/android-36.1/android.jar with cache key 4340c1b077a7aefd1a5d4553c00442f2
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/9.3.1/fileHashes/resourceHashesCache.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/resourceHashesCache.bin
+Build cache key for task ':app:testDebugUnitTest' is 4ddb3edd05b600a14c10f3609b932b9f
+Task ':app:testDebugUnitTest' is not up-to-date because:
+  No history is available.
+file or directory '/app/applet/app/build/generated/ksp/debugUnitTest/resources', not found
+file or directory '/app/applet/app/build/generated/ksp/debugUnitTest/classes', not found
+file or directory '/app/applet/app/build/intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes', not found
+Starting process 'Gradle Test Executor 1'. Working directory: /app/applet/app Command: /usr/lib/jvm/temurin-21-jdk-amd64/bin/java -Djava.awt.headless=true -Djava.library.path=/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib:/app/applet/app/src/testDebug/jniLibs:/app/applet/app/src/test/jniLibs -Dorg.gradle.internal.worker.tmpdir=/app/applet/app/build/tmp/testDebugUnitTest/work --add-opens=java.base/java.io=ALL-UNNAMED @/opt/gradle/.gradle/.tmp/gradle-worker-classpath401043432437848474txt -Xmx512m -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -ea worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 1'
+Successfully started process 'Gradle Test Executor 1'
+
+Gradle Test Executor 1 started executing tests.
+
+> Task :app:testDebugUnitTest
+
+SplashCrashTest > testSplashActivityLaunches STANDARD_ERROR
+    Invalid ID 0x00000000.
+
+Gradle Test Executor 1 finished executing tests.
+
+> Task :app:testDebugUnitTest
+Generating HTML test report...
+Finished generating test html results (0.273 secs) into: /app/applet/app/build/reports/tests/testDebugUnitTest
+Finished generating test XML results (0.004 secs) into: /app/applet/app/build/test-results/testDebugUnitTest
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/fileHashes.bin
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/fileHashes/resourceHashesCache.bin
+Invalidating in-memory cache of /opt/gradle/.gradle/caches/journal-1/file-access.bin
+Stored cache entry for task ':app:testDebugUnitTest' with cache key 4ddb3edd05b600a14c10f3609b932b9f
+Invalidating in-memory cache of /app/applet/.gradle/9.3.1/executionHistory/executionHistory.bin
+Invalidating in-memory cache of /app/applet/.gradle/buildOutputCleanup/outputFiles.bin
+Resolve mutations for :app:finalizeTestRoborazziDebug (Thread[#53,Execution worker Thread 3,5,main]) started.
+:app:finalizeTestRoborazziDebug (Thread[#53,Execution worker Thread 3,5,main]) started.
+
+> Task :app:finalizeTestRoborazziDebug SKIPPED
+Roborazzi: roborazziTestFinalizer.onlyIf doesRoborazziRun false
+Skipping task ':app:finalizeTestRoborazziDebug' as task onlyIf 'Task satisfies onlyIf spec' is false.
+AAPT2 aapt2-9.1.1-14792394-linux Daemon #0: shutdown
+Build 855fbba3-ae43-4548-b198-17cbf50cd67d is closed
+
+BUILD SUCCESSFUL in 2m 6s
+33 actionable tasks: 11 executed, 22 up-to-date
+Configuration cache entry reused.

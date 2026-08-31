@@ -325,7 +325,7 @@ object CustomMarkerRenderer {
      */
     fun createStopPin(
         context: Context,
-        stopType: com.lankafootprints.travelapp.data.model.StopType,
+        stopType: com.ceylonsteps.travelapp.data.model.StopType,
         order: Int,
         isSelected: Boolean = false
     ): BitmapDrawable {
@@ -339,13 +339,13 @@ object CustomMarkerRenderer {
         val canvas = Canvas(bitmap)
 
         val primaryColor = when (stopType) {
-            com.lankafootprints.travelapp.data.model.StopType.START_POINT -> 0xFF4CAF50.toInt()
-            com.lankafootprints.travelapp.data.model.StopType.MEAL_BREAK -> 0xFFFF7043.toInt()
-            com.lankafootprints.travelapp.data.model.StopType.FUEL -> 0xFFFFCA28.toInt()
-            com.lankafootprints.travelapp.data.model.StopType.ATTRACTION -> 0xFF00BCD4.toInt()
-            com.lankafootprints.travelapp.data.model.StopType.SCENIC_VIEW -> 0xFF8BC34A.toInt()
-            com.lankafootprints.travelapp.data.model.StopType.HOTEL -> 0xFF9C27B0.toInt()
-            com.lankafootprints.travelapp.data.model.StopType.END_POINT -> 0xFFE91E63.toInt()
+            com.ceylonsteps.travelapp.data.model.StopType.START_POINT -> 0xFF4CAF50.toInt()
+            com.ceylonsteps.travelapp.data.model.StopType.MEAL_BREAK -> 0xFFFF7043.toInt()
+            com.ceylonsteps.travelapp.data.model.StopType.FUEL -> 0xFFFFCA28.toInt()
+            com.ceylonsteps.travelapp.data.model.StopType.ATTRACTION -> 0xFF00BCD4.toInt()
+            com.ceylonsteps.travelapp.data.model.StopType.SCENIC_VIEW -> 0xFF8BC34A.toInt()
+            com.ceylonsteps.travelapp.data.model.StopType.HOTEL -> 0xFF9C27B0.toInt()
+            com.ceylonsteps.travelapp.data.model.StopType.END_POINT -> 0xFFE91E63.toInt()
         }
 
         val centerX = width / 2f

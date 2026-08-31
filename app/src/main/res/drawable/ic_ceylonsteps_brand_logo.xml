@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+
+    <!-- Outer Dial Ring (Using alpha 0.4 on stroke color #0084FF -> #660084FF) -->
+    <path
+        android:pathData="M 50  6 a 44 44 0 1 0 0 88 a 44 44 0 1 0 0 -88"
+        android:strokeColor="#660084FF"
+        android:strokeWidth="3" />
+
+    <!-- Stylized Sri Lanka Island Silhouette -->
+    <path
+        android:pathData="M50 18 C56 22  63 32  64 45 C65 58  58 72  50 78 C44 72  38 60  39 46 C40 33  46 22  50 18 Z"
+        android:fillColor="#EAF4FF"
+        android:strokeColor="#0F2B48"
+        android:strokeWidth="2.5"
+        android:strokeLineJoin="round" />
+
+    <!-- Dynamic Compass Arrow Top -->
+    <path
+        android:pathData="M 50 22 L 58 52 L 50 47 L 42 52 Z"
+        android:fillColor="#0084FF" />
+
+    <!-- Dynamic Compass Arrow Bottom (Using alpha 0.3 on fill color #0F2B48 -> #4D0F2B48) -->
+    <path
+        android:pathData="M 50 70 L 58 52 L 50 47 L 42 52 Z"
+        android:fillColor="#4D0F2B48" />
+
+    <!-- Location Pin Marker -->
+    <group
+        android:translateX="43"
+        android:translateY="14">
+        <path
+            android:pathData="M7 0 C3.1 0 0 3.1 0 7 C0 12.2 7 20 7 20 C7 20 14 12.2 14 7 C14 3.1 10.9 0 7 0 Z"
+            android:fillColor="#F5A623" />
+        <path
+            android:pathData="M 7  4.5 a 2.5 2.5 0 1 0 0 5 a 2.5 2.5 0 1 0 0 -5"
+            android:fillColor="#FFFFFF" />
+    </group>
+</vector>

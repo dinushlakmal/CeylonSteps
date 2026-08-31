@@ -65,10 +65,10 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.util.GeoUtils
-import com.lankafootprints.travelapp.data.model.StopType
-import com.lankafootprints.travelapp.data.model.TripStop
-import com.lankafootprints.travelapp.data.model.TripWithStops
-import com.lankafootprints.travelapp.data.repository.TripTimelineRepository
+import com.ceylonsteps.travelapp.data.model.StopType
+import com.ceylonsteps.travelapp.data.model.TripStop
+import com.ceylonsteps.travelapp.data.model.TripWithStops
+import com.ceylonsteps.travelapp.data.repository.TripTimelineRepository
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

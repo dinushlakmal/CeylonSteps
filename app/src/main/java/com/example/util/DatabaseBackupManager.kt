@@ -9,10 +9,10 @@ import com.example.data.model.TripLocation
 import com.example.data.model.UserProfile
 import com.example.data.repository.TripRepository
 import com.example.data.repository.UserManager
-import com.lankafootprints.travelapp.data.model.StopType
-import com.lankafootprints.travelapp.data.model.Trip
-import com.lankafootprints.travelapp.data.model.TripStop
-import com.lankafootprints.travelapp.data.model.TripWithStops
+import com.ceylonsteps.travelapp.data.model.StopType
+import com.ceylonsteps.travelapp.data.model.Trip
+import com.ceylonsteps.travelapp.data.model.TripStop
+import com.ceylonsteps.travelapp.data.model.TripWithStops
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -44,7 +44,7 @@ data class RestoreResult(
 object DatabaseBackupManager {
 
     private const val BACKUP_VERSION = 1
-    private const val APP_IDENTIFIER = "LankaFootprints_TravelJournal"
+    private const val APP_IDENTIFIER = "CeylonSteps_TravelJournal"
 
     /**
      * Exports entire Room database and user profile to a formatted JSON string
@@ -347,7 +347,7 @@ object DatabaseBackupManager {
      */
     fun createShareIntent(context: Context, jsonContent: String): Intent {
         val dateStr = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-        val fileName = "LankaFootprints_Backup_$dateStr.json"
+        val fileName = "CeylonSteps_Backup_$dateStr.json"
         val exportDir = File(context.cacheDir, "exports")
         if (!exportDir.exists()) exportDir.mkdirs()
         val file = File(exportDir, fileName)
@@ -364,8 +364,8 @@ object DatabaseBackupManager {
         return Intent(Intent.ACTION_SEND).apply {
             type = "application/json"
             putExtra(Intent.EXTRA_STREAM, contentUri)
-            putExtra(Intent.EXTRA_SUBJECT, "LankaFootprints Travel Journal Backup ($dateStr)")
-            putExtra(Intent.EXTRA_TEXT, "Here is my LankaFootprints local travel journal backup file ($fileName).")
+            putExtra(Intent.EXTRA_SUBJECT, "CeylonSteps Travel Journal Backup ($dateStr)")
+            putExtra(Intent.EXTRA_TEXT, "Here is my CeylonSteps local travel journal backup file ($fileName).")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
     }

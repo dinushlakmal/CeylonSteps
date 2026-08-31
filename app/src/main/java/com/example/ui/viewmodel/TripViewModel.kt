@@ -3,7 +3,7 @@ package com.example.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.LankaFootprintsApp
+import com.example.CeylonStepsApp
 import com.example.data.model.SriLankaDestinations
 import com.example.data.model.SriLankaLandmark
 import com.example.data.model.TripLocation
@@ -11,10 +11,10 @@ import com.example.data.model.UserProfile
 import com.example.data.repository.TripRepository
 import com.example.data.repository.UserManager
 import com.example.util.GeoDistanceEngine
-import com.lankafootprints.travelapp.data.model.Trip
-import com.lankafootprints.travelapp.data.model.TripStop
-import com.lankafootprints.travelapp.data.model.TripWithStops
-import com.lankafootprints.travelapp.data.repository.TripTimelineRepository
+import com.ceylonsteps.travelapp.data.model.Trip
+import com.ceylonsteps.travelapp.data.model.TripStop
+import com.ceylonsteps.travelapp.data.model.TripWithStops
+import com.ceylonsteps.travelapp.data.repository.TripTimelineRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -56,6 +56,7 @@ data class MediaViewerState(
 
 data class TripUiState(
     val trips: List<TripLocation> = emptyList(),
+    val recycledTrips: List<TripLocation> = emptyList(),
     val journeysWithStops: List<TripWithStops> = emptyList(),
     val activeJourneyOnMap: TripWithStops? = null,
     val isMultiStopBuilderOpen: Boolean = false,
@@ -65,6 +66,7 @@ data class TripUiState(
     val isBackupRestoreDialogOpen: Boolean = false,
     val isBackupLoading: Boolean = false,
     val backupOperationResult: com.example.util.RestoreResult? = null,
+    val appThemeType: com.example.data.repository.AppThemeType = com.example.data.repository.AppThemeType.DEFAULT,
     val themeMode: com.example.data.repository.ThemeMode = com.example.data.repository.ThemeMode.SYSTEM,
     val filteredTrips: List<TripLocation> = emptyList(),
     val pastTrips: List<TripLocation> = emptyList(),
@@ -88,8 +90,8 @@ data class TripUiState(
 
 class TripViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: TripRepository = (application as LankaFootprintsApp).repository
-    private val timelineRepository: TripTimelineRepository = (application as LankaFootprintsApp).timelineRepository
+    private val repository: TripRepository = (application as CeylonStepsApp).repository
+    private val timelineRepository: TripTimelineRepository = (application as CeylonStepsApp).timelineRepository
     private val userManager: UserManager = UserManager.getInstance(application)
 
     private val _filterTab = MutableStateFlow(FilterTab.ALL)
@@ -113,6 +115,7 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
     private val _mediaViewerState = MutableStateFlow(MediaViewerState())
     private val _isOfflineMapDialogOpen = MutableStateFlow(false)
     private val _isBackupRestoreDialogOpen = MutableStateFlow(false)
+    val recycledTrips: StateFlow<List<TripLocation>> = repository.recycledTrips.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     private val _isBackupLoading = MutableStateFlow(false)
     private val _backupOperationResult = MutableStateFlow<com.example.util.RestoreResult?>(null)
 
@@ -122,9 +125,9 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
             timelineRepository.allTripsWithStops,
             userManager.userProfile,
             _filterTab,
-            _selectedProvince
-        ) { trips, journeys, profile, filter, province ->
-            Triple(trips, journeys, Triple(profile, filter, province))
+            combine(_selectedProvince, recycledTrips) { p, rt -> Pair(p, rt) }
+        ) { trips, journeys, profile, filter, provinceAndRecycled ->
+            Triple(trips, journeys, Triple(profile, filter, provinceAndRecycled))
         },
         combine(
             _searchQuery,
@@ -166,7 +169,8 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
         val journeys = group1.second
         val profile = group1.third.first
         val filter = group1.third.second
-        val province = group1.third.third
+        val province = group1.third.third.first
+        val recycledList = group1.third.third.second
 
         val query = group2.first
         val navTab = group2.second
@@ -226,6 +230,7 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
 
         TripUiState(
             trips = trips,
+            recycledTrips = recycledList,
             journeysWithStops = journeys,
             activeJourneyOnMap = activeJourney,
             isMultiStopBuilderOpen = isBuilderOpen,
@@ -253,13 +258,19 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
             pickedCoordinates = pickedCoords,
             mapCenterTarget = center,
             mapTargetZoom = zoom,
-            themeMode = userManager.getThemeMode()
+            themeMode = userManager.getThemeMode(), appThemeType = userManager.getAppThemeType()
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = TripUiState(themeMode = userManager.getThemeMode())
+        initialValue = TripUiState(themeMode = userManager.getThemeMode(), appThemeType = userManager.getAppThemeType())
     )
+
+    val appThemeType: StateFlow<com.example.data.repository.AppThemeType> = userManager.appThemeType
+
+    fun setAppThemeType(type: com.example.data.repository.AppThemeType) {
+        userManager.setAppThemeType(type)
+    }
 
     val themeMode: StateFlow<com.example.data.repository.ThemeMode> = userManager.themeMode
 
@@ -452,15 +463,34 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    init {
+        viewModelScope.launch {
+            repository.cleanOldRecycledTrips()
+        }
+    }
+
     fun deleteTrip(trip: TripLocation) {
         viewModelScope.launch {
-            repository.deleteTrip(trip)
+            repository.updateTrip(trip.copy(deletedAtEpochMillis = System.currentTimeMillis()))
             if (_selectedTrip.value?.id == trip.id) {
                 _selectedTrip.value = null
             }
             if (_detailTrip.value?.id == trip.id) {
                 _detailTrip.value = null
             }
+        }
+    }
+
+    fun restoreTrip(trip: TripLocation) {
+        viewModelScope.launch {
+            repository.updateTrip(trip.copy(deletedAtEpochMillis = null))
+        }
+    }
+
+    fun permanentlyDeleteTrip(trip: TripLocation) {
+        viewModelScope.launch {
+            repository.deleteTrip(trip)
         }
     }
 

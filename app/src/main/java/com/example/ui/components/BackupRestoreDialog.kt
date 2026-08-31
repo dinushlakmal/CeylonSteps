@@ -37,6 +37,10 @@ import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Storage
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -45,16 +49,22 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Switch
+import android.preference.PreferenceManager
+import com.example.worker.AutoBackupManager
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Text
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -82,7 +92,7 @@ import com.example.ui.theme.BentoPrimaryDark
 import com.example.util.BackupData
 import com.example.util.DatabaseBackupManager
 import com.example.util.RestoreResult
-import com.lankafootprints.travelapp.data.model.TripWithStops
+import com.ceylonsteps.travelapp.data.model.TripWithStops
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -101,7 +111,13 @@ fun BackupRestoreDialog(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var selectedTab by remember { mutableIntStateOf(0) } // 0: Export, 1: Import
+    val sharedPreferences = remember { context.getSharedPreferences("CeylonStepsPrefs", android.content.Context.MODE_PRIVATE) }
+    var isAutoSyncEnabled by remember { mutableStateOf(sharedPreferences.getBoolean("auto_backup_enabled", false)) }
+    var autoSyncInterval by remember { mutableIntStateOf(sharedPreferences.getInt("auto_backup_interval", 1)) }
+
+    var selectedTab by remember { mutableIntStateOf(2) } // 0: Export, 1: Import
+    var isCloudWorking by remember { mutableStateOf(false) }
+    var cloudStatusText by remember { mutableStateOf("") }
 
     // Import Preview State
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
@@ -194,11 +210,11 @@ fun BackupRestoreDialog(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = "Local Database Backup",
+                                text = "Google Drive Backup",
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                             )
                             Text(
-                                text = "Export & Import JSON Backups",
+                                text = "Cloud Sync Export & Import JSON Backups Restore",
                                 style = MaterialTheme.typography.bodySmall.copy(color = BentoPrimary)
                             )
                         }
@@ -210,48 +226,6 @@ fun BackupRestoreDialog(
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
-
-                // Mode Tabs
-                TabRow(
-                    selectedTabIndex = selectedTab,
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    modifier = Modifier.clip(androidx.compose.foundation.shape.RoundedCornerShape(12.dp)),
-                    divider = {}
-                ) {
-                    Tab(
-                        selected = selectedTab == 0,
-                        onClick = { selectedTab = 0; onClearResult() },
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.FileUpload, contentDescription = null, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("Export JSON", fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    )
-                    Tab(
-                        selected = selectedTab == 1,
-                        onClick = { selectedTab = 1; onClearResult() },
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.FileDownload, contentDescription = null, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("Import & Restore", fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    )
-                    Tab(
-                        selected = selectedTab == 2,
-                        onClick = { selectedTab = 2; onClearResult() },
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Cloud, contentDescription = null, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("Google Drive", fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -309,9 +283,9 @@ fun BackupRestoreDialog(
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Travel Footprints / Trips:", style = MaterialTheme.typography.bodyMedium)
+                                Text("Travel Footprints / Trips:", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                                 Text("${trips.size} locations", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
                             }
 
@@ -319,9 +293,9 @@ fun BackupRestoreDialog(
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Multi-Stop Journeys:", style = MaterialTheme.typography.bodyMedium)
+                                Text("Multi-Stop Journeys:", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                                 Text("${journeys.size} expeditions", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
                             }
 
@@ -330,9 +304,9 @@ fun BackupRestoreDialog(
                             val totalWaypoints = journeys.sumOf { it.stops.size }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Itinerary Waypoints & Media:", style = MaterialTheme.typography.bodyMedium)
+                                Text("Itinerary Waypoints & Media:", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
                                 Text("$totalWaypoints stops", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
                             }
 
@@ -340,10 +314,10 @@ fun BackupRestoreDialog(
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("User Profile & Home Base:", style = MaterialTheme.typography.bodyMedium)
-                                Text(userProfile.homeLocationName, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold))
+                                Text("User Profile & Home Base:", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                                Text(userProfile.homeLocationName, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold), textAlign = androidx.compose.ui.text.style.TextAlign.End)
                             }
                         }
                     }
@@ -354,7 +328,7 @@ fun BackupRestoreDialog(
                     Button(
                         onClick = {
                             val dateStr = SimpleDateFormat("yyyyMMdd_HHmm", Locale.US).format(Date())
-                            val defaultName = "LankaFootprints_Backup_$dateStr.json"
+                            val defaultName = "CeylonSteps_Backup_$dateStr.json"
                             createDocumentLauncher.launch(defaultName)
                         },
                         modifier = Modifier
@@ -380,7 +354,7 @@ fun BackupRestoreDialog(
                                 multiStopJourneys = journeys
                             )
                             val shareIntent = DatabaseBackupManager.createShareIntent(context, jsonString)
-                            context.startActivity(Intent.createChooser(shareIntent, "Share LankaFootprints Backup"))
+                            context.startActivity(Intent.createChooser(shareIntent, "Share CeylonSteps Backup"))
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -412,7 +386,7 @@ fun BackupRestoreDialog(
                         Icon(Icons.Default.FolderOpen, contentDescription = null, tint = BentoPrimary)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = if (selectedFileUri != null) "Select Different JSON File" else "Browse & Select JSON Backup File",
+                            text = if (selectedFileUri != null) "Select Different JSON File" else "Browse JSON Backup File",
                             fontWeight = FontWeight.Bold,
                             color = BentoPrimary
                         )
@@ -462,40 +436,40 @@ fun BackupRestoreDialog(
                                 val dateFormatted = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(Date(backup.exportedAtEpoch))
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("Backup Date:", style = MaterialTheme.typography.bodySmall)
-                                    Text(dateFormatted, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold))
+                                    Text("Backup Date:", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                                    Text(dateFormatted, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold), textAlign = androidx.compose.ui.text.style.TextAlign.End)
                                 }
 
                                 Spacer(modifier = Modifier.height(6.dp))
 
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("Single Trip Locations:", style = MaterialTheme.typography.bodySmall)
-                                    Text("${backup.tripLocations.size} items", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold))
+                                    Text("Single Trip Locations:", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                                    Text("${backup.tripLocations.size} items", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold), textAlign = androidx.compose.ui.text.style.TextAlign.End)
                                 }
 
                                 Spacer(modifier = Modifier.height(6.dp))
 
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("Multi-Stop Journeys:", style = MaterialTheme.typography.bodySmall)
-                                    Text("${backup.multiStopJourneys.size} items", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold))
+                                    Text("Multi-Stop Journeys:", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                                    Text("${backup.multiStopJourneys.size} items", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold), textAlign = androidx.compose.ui.text.style.TextAlign.End)
                                 }
 
                                 if (backup.userProfile != null) {
                                     Spacer(modifier = Modifier.height(6.dp))
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text("Traveler / Home Base:", style = MaterialTheme.typography.bodySmall)
-                                        Text("${backup.userProfile.userName} (${backup.userProfile.homeLocationName})", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold))
+                                        Text("Traveler / Home Base:", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                                        Text("${backup.userProfile.userName} (${backup.userProfile.homeLocationName})", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold), textAlign = androidx.compose.ui.text.style.TextAlign.End)
                                     }
                                 }
                             }
@@ -524,7 +498,7 @@ fun BackupRestoreDialog(
                                 onClick = { overwriteExisting = false },
                                 colors = RadioButtonDefaults.colors(selectedColor = BentoPrimary)
                             )
-                            Column {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text("Merge with Existing Data", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold))
                                 Text("Appends backup items without deleting your current records", style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
                             }
@@ -540,7 +514,7 @@ fun BackupRestoreDialog(
                                 onClick = { overwriteExisting = true },
                                 colors = RadioButtonDefaults.colors(selectedColor = BentoPrimary)
                             )
-                            Column {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text("Replace / Clean Restore", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold))
                                 Text("Replaces existing data with the exact state from this backup", style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
                             }
@@ -599,51 +573,173 @@ fun BackupRestoreDialog(
                 if (selectedTab == 2) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text(
-                            text = "Cloud Backup Engine",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = BentoPrimary
-                        )
-
-                        // 3 Tiers of Backup
-                        com.example.util.BackupTier.entries.forEach { tier ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        // In real implementation, this triggers the backup via GoogleDriveBackupEngine
-                                        // after verifying Google Sign-In status and requesting permissions if needed.
-                                        Toast.makeText(context, "Initiating ${tier.title} to Google Drive...", Toast.LENGTH_SHORT).show()
-                                    },
-                                shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
-                                border = BorderStroke(1.dp, BentoBorderLight)
-                            ) {
+                        // Background Sync Config
+                        Card(
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                 Row(
-                                    modifier = Modifier.padding(14.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.CloudUpload,
-                                        contentDescription = null,
-                                        tint = BentoPrimary,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Column {
+                                    Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = tier.title,
-                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                                            "Automatic Cloud Sync",
+                                            fontWeight = FontWeight.Bold,
+                                            style = MaterialTheme.typography.titleMedium
                                         )
                                         Text(
-                                            text = tier.description,
+                                            "Backs up data to Google Drive periodically.",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
+                                    Switch(
+                                        checked = isAutoSyncEnabled,
+                                        onCheckedChange = { checked ->
+                                            isAutoSyncEnabled = checked
+                                            sharedPreferences.edit().putBoolean("auto_backup_enabled", checked).apply()
+                                            if (checked) {
+                                                AutoBackupManager.scheduleAutoBackup(context, autoSyncInterval.toLong())
+                                            } else {
+                                                AutoBackupManager.cancelAutoBackup(context)
+                                            }
+                                        }
+                                    )
+                                }
+                                if (isAutoSyncEnabled) {
+                                    Text("Sync Frequency", fontWeight = FontWeight.SemiBold, style = MaterialTheme.typography.bodySmall)
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        OutlinedButton(
+                                            onClick = { 
+                                                autoSyncInterval = 1
+                                                sharedPreferences.edit().putInt("auto_backup_interval", 1).apply()
+                                                AutoBackupManager.scheduleAutoBackup(context, 1)
+                                            },
+                                            colors = if (autoSyncInterval == 1) ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer) else ButtonDefaults.outlinedButtonColors()
+                                        ) { Text("Daily", color = if (autoSyncInterval == 1) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface) }
+
+                                        OutlinedButton(
+                                            onClick = { 
+                                                autoSyncInterval = 7
+                                                sharedPreferences.edit().putInt("auto_backup_interval", 7).apply()
+                                                AutoBackupManager.scheduleAutoBackup(context, 7)
+                                            },
+                                            colors = if (autoSyncInterval == 7) ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer) else ButtonDefaults.outlinedButtonColors()
+                                        ) { Text("Weekly", color = if (autoSyncInterval == 7) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface) }
+                                    }
+                                }
+                            }
+                        }
+
+                        Divider(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.outlineVariant)
+
+                        Column {
+                            Text(
+                                text = "Select Backup Strategy",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Choose what data to sync with your Google Drive account.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        // 3 Tiers of Backup
+                        com.example.util.BackupTier.entries.forEachIndexed { index, tier ->
+                            val displayTitle = when (tier) {
+                                com.example.util.BackupTier.DATA_ONLY -> "Basic Data Sync"
+                                com.example.util.BackupTier.DATA_WITH_IMAGES -> "Data + Memories"
+                                com.example.util.BackupTier.FULL_BACKUP -> "Complete Archive"
+                            }
+                            
+                            val icon = when (tier) {
+                                com.example.util.BackupTier.DATA_ONLY -> Icons.Default.CloudSync
+                                com.example.util.BackupTier.DATA_WITH_IMAGES -> Icons.Default.PhotoLibrary
+                                com.example.util.BackupTier.FULL_BACKUP -> Icons.Default.Storage
+                            }
+
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        val account = com.google.android.gms.auth.api.signin.GoogleSignIn.getLastSignedInAccount(context)
+                                        if (account == null) {
+                                            android.widget.Toast.makeText(context, "Please Sign In to Google first.", android.widget.Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            isCloudWorking = true
+                                            scope.launch {
+                                                val result = com.example.util.GoogleDriveBackupEngine.performBackup(
+                                                    context, account, tier, trips, journeys
+                                                ) { progress, message ->
+                                                    // progress handling if needed
+                                                }
+                                                
+                                                isCloudWorking = false
+                                                android.widget.Toast.makeText(context, result.message, android.widget.Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    },
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(48.dp)
+                                            .background(
+                                                color = BentoPrimary.copy(alpha = 0.15f),
+                                                shape = CircleShape
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = icon,
+                                            contentDescription = null,
+                                            tint = BentoPrimary,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                    
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = displayTitle,
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = tier.description,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            lineHeight = 16.sp
+                                        )
+                                    }
+                                    
+                                    Icon(
+                                        imageVector = Icons.Default.ChevronRight,
+                                        contentDescription = "Select",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                        modifier = Modifier.size(20.dp)
+                                    )
                                 }
                             }
                         }

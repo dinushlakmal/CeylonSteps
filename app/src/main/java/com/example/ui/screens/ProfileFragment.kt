@@ -14,7 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.example.EditProfileActivity
-import com.example.LankaFootprintsApp
+import com.example.CeylonStepsApp
 import com.example.R
 import com.example.data.repository.UserManager
 import com.example.util.GeoDistanceEngine
@@ -74,7 +74,7 @@ class ProfileFragment : Fragment() {
             }
         }
 
-        val app = requireActivity().application as LankaFootprintsApp
+        val app = requireActivity().application as CeylonStepsApp
         viewLifecycleOwner.lifecycleScope.launch {
             app.repository.allTrips.collectLatest { trips ->
                 val pastTrips = trips.filter { !it.isUpcoming }

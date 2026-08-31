@@ -1,8 +1,8 @@
 package com.example.data.model
 
-import com.lankafootprints.travelapp.data.model.Destination
-import com.lankafootprints.travelapp.data.model.DestinationCategory
-import com.lankafootprints.travelapp.data.seed.DestinationDataSeeder
+import com.ceylonsteps.travelapp.data.model.Destination
+import com.ceylonsteps.travelapp.data.model.DestinationCategory
+import com.ceylonsteps.travelapp.data.seed.DestinationDataSeeder
 
 data class SriLankaLandmark(
     val id: String = "",

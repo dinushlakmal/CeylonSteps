@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.PathMeasure
 import android.graphics.Point
 import android.view.animation.LinearInterpolator
 import org.osmdroid.util.GeoPoint
@@ -27,6 +28,12 @@ class AnimatedPolylineOverlay(
     private val geoPoints = mutableListOf<GeoPoint>()
     private var phase = 0f
     private var animator: ValueAnimator? = null
+
+    var drawProgress: Float = 1f
+        set(value) {
+            field = value.coerceIn(0f, 1f)
+            mapView.postInvalidate()
+        }
 
     // Trail Glow & Dash Paints
     private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -74,7 +81,6 @@ class AnimatedPolylineOverlay(
 
         val path = Path()
         val screenPoint = Point()
-
         for (i in geoPoints.indices) {
             projection.toPixels(geoPoints[i], screenPoint)
             if (i == 0) {
@@ -84,6 +90,12 @@ class AnimatedPolylineOverlay(
             }
         }
 
+        // Create partial path based on drawProgress
+        val measure = PathMeasure(path, false)
+        val length = measure.length
+        val partialPath = Path()
+        measure.getSegment(0f, length * drawProgress, partialPath, true)
+
         // Apply dynamic animated DashPathEffect if dashed mode
         if (isDashed) {
             val dashEffect = DashPathEffect(floatArrayOf(25f, 15f), phase)
@@ -92,9 +104,9 @@ class AnimatedPolylineOverlay(
             corePaint.pathEffect = null
         }
 
-        // Draw Outer Glow and Animated Dashed Core
-        canvas.drawPath(path, glowPaint)
-        canvas.drawPath(path, corePaint)
+        // Draw Outer Glow and Animated Dashed Core on the partial path
+        canvas.drawPath(partialPath, glowPaint)
+        canvas.drawPath(partialPath, corePaint)
     }
 
     fun onDestroy() {

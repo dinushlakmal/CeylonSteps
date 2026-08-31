@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+enum class AppThemeType { DEFAULT, OCEAN, FOREST, SUNSET }
+
 enum class ThemeMode {
     SYSTEM,
     LIGHT,
@@ -22,6 +24,8 @@ class UserManager(context: Context) {
 
     private val _themeMode = MutableStateFlow(loadThemeMode())
     val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
+    private val _appThemeType = MutableStateFlow(loadAppThemeType())
+    val appThemeType: StateFlow<AppThemeType> = _appThemeType.asStateFlow()
 
     fun isOnboardingCompleted(): Boolean {
         return prefs.getBoolean(KEY_ONBOARDING_COMPLETED, false)
@@ -29,6 +33,15 @@ class UserManager(context: Context) {
 
     fun getUserProfile(): UserProfile {
         return _userProfile.value
+    }
+
+    fun getAppThemeType(): AppThemeType {
+        return _appThemeType.value
+    }
+
+    fun setAppThemeType(type: AppThemeType) {
+        prefs.edit().putString(KEY_APP_THEME_TYPE, type.name).apply()
+        _appThemeType.value = type
     }
 
     fun getThemeMode(): ThemeMode {
@@ -71,6 +84,15 @@ class UserManager(context: Context) {
         saveUserProfile(updated)
     }
 
+    private fun loadAppThemeType(): AppThemeType {
+        val raw = prefs.getString(KEY_APP_THEME_TYPE, AppThemeType.DEFAULT.name) ?: AppThemeType.DEFAULT.name
+        return try {
+            AppThemeType.valueOf(raw)
+        } catch (e: Exception) {
+            AppThemeType.DEFAULT
+        }
+    }
+
     private fun loadThemeMode(): ThemeMode {
         val raw = prefs.getString(KEY_THEME_MODE, ThemeMode.SYSTEM.name) ?: ThemeMode.SYSTEM.name
         return try {
@@ -107,6 +129,7 @@ class UserManager(context: Context) {
         private const val KEY_HOME_LONGITUDE = "home_longitude"
         private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
         private const val KEY_THEME_MODE = "app_theme_mode"
+        private const val KEY_APP_THEME_TYPE = "app_theme_type"
 
         @Volatile
         private var INSTANCE: UserManager? = null

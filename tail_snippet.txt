@@ -1,0 +1,30 @@
+                    .height(48.dp)
+                    .testTag("btn_reconfigure_onboarding"),
+                shape = RoundedCornerShape(14.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            ) {
+                Icon(imageVector = Icons.Default.Restore, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Re-run Onboarding Setup", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Spacer(modifier = Modifier.height(90.dp))
+        }
+    }
+
+    if (isRecycleBinOpen) {
+        com.example.ui.components.RecycleBinDialog(
+            recycledTrips = recycledTrips,
+            onRestoreTrip = onRestoreTrip,
+            onPermanentlyDeleteTrip = onPermanentlyDeleteTrip,
+            onDismiss = { isRecycleBinOpen = false }
+        )
+    }
+    if (isRecycleBinOpen) {
+        com.example.ui.components.RecycleBinDialog(
+            recycledTrips = recycledTrips,
+            onRestoreTrip = onRestoreTrip,
+            onPermanentlyDeleteTrip = onPermanentlyDeleteTrip,
+            onDismiss = { isRecycleBinOpen = false }
+        )
+    }
+}

@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Brightness4
 import androidx.compose.material.icons.filled.Brightness7
@@ -95,7 +96,7 @@ import com.google.android.gms.common.api.Scope
 import com.google.api.services.drive.DriveScopes
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import com.lankafootprints.travelapp.auth.UserManager as AuthUserManager
+import com.ceylonsteps.travelapp.auth.UserManager as AuthUserManager
 import android.widget.Toast
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -107,12 +108,18 @@ fun ProfileScreen(
     roundTripFromHomeKm: Double,
     currentThemeMode: ThemeMode = ThemeMode.SYSTEM,
     onThemeModeChange: (ThemeMode) -> Unit = {},
+    currentAppThemeType: com.example.data.repository.AppThemeType = com.example.data.repository.AppThemeType.DEFAULT,
+    onAppThemeTypeChange: (com.example.data.repository.AppThemeType) -> Unit = {},
+    recycledTrips: List<TripLocation> = emptyList(),
+    onRestoreTrip: (TripLocation) -> Unit = {},
+    onPermanentlyDeleteTrip: (TripLocation) -> Unit = {},
     onEditProfileClick: () -> Unit,
     onBackupRestoreClick: () -> Unit = {},
     onTripClick: (TripLocation) -> Unit
 ) {
     val context = LocalContext.current
-    var loggedInUser by remember { mutableStateOf<com.lankafootprints.travelapp.auth.AppUser?>(AuthUserManager.getLoggedInUser(context)) }
+    var isRecycleBinOpen by remember { mutableStateOf(false) }
+    var loggedInUser by remember { mutableStateOf<com.ceylonsteps.travelapp.auth.AppUser?>(AuthUserManager.getLoggedInUser(context)) }
 
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -393,6 +400,29 @@ fun ProfileScreen(
                                 Text(text = "Backup & Restore", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
                         }
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            OutlinedButton(
+                                onClick = { isRecycleBinOpen = true },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(46.dp)
+                                    .testTag("btn_recycle_bin"),
+                                shape = RoundedCornerShape(14.dp),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(text = "Recycle Bin", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.error)
+                            }
+                        }
 
                         // Google Sign-In Status Row
                         Spacer(modifier = Modifier.height(16.dp))
@@ -446,7 +476,6 @@ fun ProfileScreen(
                 }
             }
         }
-
         // ================= THEME & DISPLAY PREFERENCES =================
         item {
             Card(
@@ -529,6 +558,45 @@ fun ProfileScreen(
                                 selectedContainerColor = MaterialTheme.colorScheme.primary,
                                 selectedLabelColor = MaterialTheme.colorScheme.onPrimary
                             )
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("Color Themes", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = currentAppThemeType == com.example.data.repository.AppThemeType.DEFAULT,
+                            onClick = { onAppThemeTypeChange(com.example.data.repository.AppThemeType.DEFAULT) },
+                            label = { Text("Default", fontSize = 12.sp) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = FilterChipDefaults.filterChipColors(selectedContainerColor = MaterialTheme.colorScheme.primary, selectedLabelColor = MaterialTheme.colorScheme.onPrimary)
+                        )
+                        FilterChip(
+                            selected = currentAppThemeType == com.example.data.repository.AppThemeType.OCEAN,
+                            onClick = { onAppThemeTypeChange(com.example.data.repository.AppThemeType.OCEAN) },
+                            label = { Text("Ocean", fontSize = 12.sp) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = FilterChipDefaults.filterChipColors(selectedContainerColor = MaterialTheme.colorScheme.primary, selectedLabelColor = MaterialTheme.colorScheme.onPrimary)
+                        )
+                    }
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = currentAppThemeType == com.example.data.repository.AppThemeType.FOREST,
+                            onClick = { onAppThemeTypeChange(com.example.data.repository.AppThemeType.FOREST) },
+                            label = { Text("Forest", fontSize = 12.sp) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = FilterChipDefaults.filterChipColors(selectedContainerColor = MaterialTheme.colorScheme.primary, selectedLabelColor = MaterialTheme.colorScheme.onPrimary)
+                        )
+                        FilterChip(
+                            selected = currentAppThemeType == com.example.data.repository.AppThemeType.SUNSET,
+                            onClick = { onAppThemeTypeChange(com.example.data.repository.AppThemeType.SUNSET) },
+                            label = { Text("Sunset", fontSize = 12.sp) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = FilterChipDefaults.filterChipColors(selectedContainerColor = MaterialTheme.colorScheme.primary, selectedLabelColor = MaterialTheme.colorScheme.onPrimary)
                         )
                     }
                 }
@@ -941,5 +1009,22 @@ fun ProfileScreen(
             }
             Spacer(modifier = Modifier.height(90.dp))
         }
+    }
+
+    if (isRecycleBinOpen) {
+        com.example.ui.components.RecycleBinDialog(
+            recycledTrips = recycledTrips,
+            onRestoreTrip = onRestoreTrip,
+            onPermanentlyDeleteTrip = onPermanentlyDeleteTrip,
+            onDismiss = { isRecycleBinOpen = false }
+        )
+    }
+    if (isRecycleBinOpen) {
+        com.example.ui.components.RecycleBinDialog(
+            recycledTrips = recycledTrips,
+            onRestoreTrip = onRestoreTrip,
+            onPermanentlyDeleteTrip = onPermanentlyDeleteTrip,
+            onDismiss = { isRecycleBinOpen = false }
+        )
     }
 }

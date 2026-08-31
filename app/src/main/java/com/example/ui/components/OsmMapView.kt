@@ -34,26 +34,52 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import coil.imageLoader
+import coil.request.ImageRequest
+import coil.transform.CircleCropTransformation
+import kotlinx.coroutines.launch
+import androidx.core.graphics.drawable.toBitmap
+import android.graphics.drawable.BitmapDrawable
 
 @Composable
 fun OsmMapView(
     modifier: Modifier = Modifier,
     trips: List<TripLocation>,
     selectedTrip: TripLocation?,
-    activeJourney: com.lankafootprints.travelapp.data.model.TripWithStops? = null,
+    activeJourney: com.ceylonsteps.travelapp.data.model.TripWithStops? = null,
     centerTarget: Pair<Double, Double>?,
     targetZoom: Double,
     isPickerMode: Boolean,
     pickedCoordinates: Pair<Double, Double>? = null,
     homeLocation: Pair<Double, Double>? = null,
+    userPhotoUrl: String? = null,
     onTripSelected: (TripLocation) -> Unit,
     onLocationPicked: (Double, Double) -> Unit,
     useTopoMap: Boolean = false,
+    scrollProgress: Float = 1f,
     onMapViewReady: ((MapView) -> Unit)? = null
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var mapViewInstance by remember { mutableStateOf<MapView?>(null) }
+    val activeOverlays = remember { mutableListOf<AnimatedPolylineOverlay>() }
+    LaunchedEffect(scrollProgress) { activeOverlays.forEach { it.drawProgress = scrollProgress } }
+    
+    // Load home avatar once
+    var homeAvatarDrawable by remember { mutableStateOf<android.graphics.drawable.Drawable?>(null) }
+    LaunchedEffect(userPhotoUrl) {
+        if (!userPhotoUrl.isNullOrEmpty()) {
+            val request = ImageRequest.Builder(context)
+                .data(userPhotoUrl)
+                .transformations(CircleCropTransformation())
+                .size(120) // avatar size
+                .build()
+            val result = context.imageLoader.execute(request)
+            homeAvatarDrawable = result.drawable
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize().testTag("osm_map_container")) {
         AndroidView(
@@ -88,6 +114,8 @@ fun OsmMapView(
                 mapView.maxZoomLevel = 18.0
 
                 // Clear previous custom overlays
+                activeOverlays.forEach { it.onDestroy() }
+                activeOverlays.clear()
                 mapView.overlays.clear()
 
                 // 1. Add Map Events Receiver for Taps / Location Picking
@@ -128,6 +156,8 @@ fun OsmMapView(
                             isDashed = false
                         )
                         journeyTrail.setRoutePoints(journeyPoints)
+                        journeyTrail.drawProgress = scrollProgress
+                        activeOverlays.add(journeyTrail)
                         mapView.overlays.add(journeyTrail)
                     }
 
@@ -139,7 +169,7 @@ fun OsmMapView(
                         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                         icon = CustomMarkerRenderer.createStopPin(
                             context = context,
-                            stopType = com.lankafootprints.travelapp.data.model.StopType.START_POINT,
+                            stopType = com.ceylonsteps.travelapp.data.model.StopType.START_POINT,
                             order = 0
                         )
                     }
@@ -165,23 +195,33 @@ fun OsmMapView(
                     val pastTrips = trips.filter { !it.isUpcoming }.sortedBy { it.dateEpochMillis }
                     val upcomingTrips = trips.filter { it.isUpcoming }.sortedBy { it.dateEpochMillis }
 
+                    val pastPoints = mutableListOf<GeoPoint>()
+                    if (homeLocation != null) {
+                        pastPoints.add(GeoPoint(homeLocation.first, homeLocation.second))
+                    }
+                    pastPoints.addAll(pastTrips.map { GeoPoint(it.latitude, it.longitude) })
+
                     // Past Visited Route (Electric Cyan Glow Animated Trail)
-                    if (pastTrips.size >= 2) {
-                        val points = pastTrips.map { GeoPoint(it.latitude, it.longitude) }
+                    if (pastPoints.size >= 2) {
                         val animatedTrail = AnimatedPolylineOverlay(
                             mapView = mapView,
                             glowColorHex = "#4D00E5FF", // Translucent Electric Cyan Glow
                             coreColorHex = "#00E5FF",  // Electric Cyan Core
                             isDashed = true
                         )
-                        animatedTrail.setRoutePoints(points)
+                        animatedTrail.setRoutePoints(pastPoints)
+                        animatedTrail.drawProgress = scrollProgress
+                        activeOverlays.add(animatedTrail)
                         mapView.overlays.add(animatedTrail)
                     }
 
-                    // Upcoming Route Polyline (Gold Trail Connected from last spot)
+                    // Upcoming Route Polyline (Gold Trail Connected from last spot or home)
                     val connectionPoints = mutableListOf<GeoPoint>()
-                    pastTrips.lastOrNull()?.let { lastVisited ->
+                    if (pastTrips.isNotEmpty()) {
+                        val lastVisited = pastTrips.last()
                         connectionPoints.add(GeoPoint(lastVisited.latitude, lastVisited.longitude))
+                    } else if (homeLocation != null) {
+                        connectionPoints.add(GeoPoint(homeLocation.first, homeLocation.second))
                     }
                     upcomingTrips.forEach { upcoming ->
                         connectionPoints.add(GeoPoint(upcoming.latitude, upcoming.longitude))
@@ -195,9 +235,11 @@ fun OsmMapView(
                             isDashed = true
                         )
                         upcomingAnimatedTrail.setRoutePoints(connectionPoints)
+                        upcomingAnimatedTrail.drawProgress = scrollProgress
+                        activeOverlays.add(upcomingAnimatedTrail)
                         mapView.overlays.add(upcomingAnimatedTrail)
                     }
-
+                    
                     // 3. Add 3D Photo Pin Markers for each Footprint
                     trips.forEachIndexed { index, trip ->
                         val isSelected = selectedTrip?.id == trip.id
@@ -244,12 +286,17 @@ fun OsmMapView(
                         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                         icon = CustomMarkerRenderer.createStopPin(
                             context = context,
-                            stopType = com.lankafootprints.travelapp.data.model.StopType.ATTRACTION,
+                            stopType = com.ceylonsteps.travelapp.data.model.StopType.ATTRACTION,
                             order = 1
                         )
                     }
                     mapView.overlays.add(pickMarker)
                 }
+
+                // Current Location Overlay
+                val locationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(context), mapView)
+                locationOverlay.enableMyLocation()
+                mapView.overlays.add(locationOverlay)
 
                 if (homeLocation != null) {
                     val homeMarker = Marker(mapView).apply {
@@ -259,9 +306,14 @@ fun OsmMapView(
                         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                         icon = CustomMarkerRenderer.createStopPin(
                             context = context,
-                            stopType = com.lankafootprints.travelapp.data.model.StopType.START_POINT,
+                            stopType = com.ceylonsteps.travelapp.data.model.StopType.START_POINT,
                             order = 0
                         )
+                        
+                        if (homeAvatarDrawable != null) {
+                            icon = homeAvatarDrawable
+                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                        }
                     }
                     mapView.overlays.add(homeMarker)
                 }

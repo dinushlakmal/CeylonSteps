@@ -6,9 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.data.dao.TripLocationDao
 import com.example.data.model.TripLocation
-import com.lankafootprints.travelapp.data.dao.TripTimelineDao
-import com.lankafootprints.travelapp.data.model.Trip
-import com.lankafootprints.travelapp.data.model.TripStop
+import com.ceylonsteps.travelapp.data.dao.TripTimelineDao
+import com.ceylonsteps.travelapp.data.model.Trip
+import com.ceylonsteps.travelapp.data.model.TripStop
 
 @Database(entities = [Trip::class, TripStop::class, TripLocation::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {

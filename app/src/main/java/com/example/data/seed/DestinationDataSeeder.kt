@@ -1,7 +1,7 @@
 package com.example.data.seed
 
-import com.lankafootprints.travelapp.data.model.Destination
-import com.lankafootprints.travelapp.data.seed.DestinationDataSeeder
+import com.ceylonsteps.travelapp.data.model.Destination
+import com.ceylonsteps.travelapp.data.seed.DestinationDataSeeder
 
 typealias DestinationDataSeeder = DestinationDataSeeder
 typealias Destination = Destination

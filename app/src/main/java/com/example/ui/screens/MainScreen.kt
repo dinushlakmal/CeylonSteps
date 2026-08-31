@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -23,6 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -87,6 +90,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -181,45 +185,7 @@ fun MainScreen(viewModel: TripViewModel) {
                             )
                         )
                     } else {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            // Modern Brand Badge
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = BentoPrimary.copy(alpha = 0.12f),
-                                border = BorderStroke(1.dp, BentoPrimary.copy(alpha = 0.25f)),
-                                modifier = Modifier.size(38.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_footsteps),
-                                        contentDescription = "LankaFootprints Logo",
-                                        tint = BentoPrimary,
-                                        modifier = Modifier.size(22.dp)
-                                    )
-                                }
-                            }
-
-                            Column {
-                                Text(
-                                    text = "LankaFootprints",
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Black,
-                                        letterSpacing = (-0.3).sp
-                                    )
-                                )
-                                Text(
-                                    text = "Sri Lanka Travel Journal",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = 10.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = BentoPrimary
-                                    )
-                                )
-                            }
-                        }
+                        com.example.ui.components.CeylonStepsBrand()
                     }
                 },
                 actions = {
@@ -596,6 +562,7 @@ fun MainScreen(viewModel: TripViewModel) {
                             isPickerMode = uiState.isMapPickerMode,
                             pickedCoordinates = uiState.pickedCoordinates,
                             homeLocation = Pair(uiState.userProfile.homeLatitude, uiState.userProfile.homeLongitude),
+                            userPhotoUrl = uiState.userProfile.profileImageUri,
                             onTripSelected = { trip ->
                                 viewModel.selectTrip(trip)
                             },
@@ -1021,7 +988,7 @@ fun MainScreen(viewModel: TripViewModel) {
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Icon(
-                                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_footsteps),
+                                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_ceylonsteps_brand_logo),
                                     contentDescription = "Footsteps",
                                     tint = Color(0xFF00E5FF),
                                     modifier = Modifier.size(20.dp)
@@ -1180,16 +1147,68 @@ fun MainScreen(viewModel: TripViewModel) {
                 }
 
                 NavigationTab.JOURNAL -> {
-                    // Bento Modular Feed & Timeline
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp)
-                            .testTag("journal_feed_list"),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
+                    val listState = rememberLazyListState()
+                    val totalItems = uiState.filteredTrips.size
+                    
+                    val scrollProgress by remember {
+                        derivedStateOf {
+                            if (totalItems <= 1) 1f
+                            else {
+                                val firstVisible = listState.firstVisibleItemIndex
+                                val adjustedIndex = (firstVisible - 2).coerceAtLeast(0)
+                                val fraction = (adjustedIndex.toFloat() / (totalItems - 1)).coerceIn(0f, 1f)
+                                fraction
+                            }
+                        }
+                    }
+
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        // Background Progressive Map Parallax View
+                        OsmMapView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.45f)
+                                .align(Alignment.TopCenter)
+                                .alpha(0.85f),
+                            trips = uiState.filteredTrips,
+                            selectedTrip = null,
+                            activeJourney = null,
+                            centerTarget = null,
+                            targetZoom = 7.5,
+                            isPickerMode = false,
+                            onTripSelected = {},
+                            onLocationPicked = {_,_->},
+                            scrollProgress = scrollProgress
+                        )
+                        
+                        // Gradient Overlay to blend Map into surface
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.45f)
+                                .align(Alignment.TopCenter)
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color.Transparent,
+                                            MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
+                                            MaterialTheme.colorScheme.background
+                                        )
+                                    )
+                                )
+                        )
+
+                        // Bento Modular Feed & Timeline
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 16.dp)
+                                .testTag("journal_feed_list"),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
                         item {
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(280.dp))
                             // Bento Modular Dashboard
                             StatsHeaderCard(
                                 stats = uiState.stats,
@@ -1375,7 +1394,7 @@ fun MainScreen(viewModel: TripViewModel) {
                         }
                     }
                 }
-
+                }
                 NavigationTab.CALENDAR -> {
                     // Month-by-month Travel Calendar
                     CustomCalendarView(
@@ -1412,8 +1431,13 @@ fun MainScreen(viewModel: TripViewModel) {
                         roundTripFromHomeKm = uiState.stats.roundTripFromHomeKm,
                         currentThemeMode = uiState.themeMode,
                         onThemeModeChange = { viewModel.setThemeMode(it) },
+                        currentAppThemeType = uiState.appThemeType,
+                        onAppThemeTypeChange = { viewModel.setAppThemeType(it) },
                         onEditProfileClick = { viewModel.openEditProfile() },
                         onBackupRestoreClick = { viewModel.openBackupRestoreDialog() },
+                        recycledTrips = uiState.recycledTrips,
+                        onRestoreTrip = { viewModel.restoreTrip(it) },
+                        onPermanentlyDeleteTrip = { viewModel.permanentlyDeleteTrip(it) },
                         onTripClick = { viewModel.openTripDetail(it) }
                     )
                 }

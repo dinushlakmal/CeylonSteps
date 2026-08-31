@@ -32,7 +32,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
 import com.google.api.services.drive.DriveScopes
-import com.lankafootprints.travelapp.auth.UserManager as AuthUserManager
+import com.ceylonsteps.travelapp.auth.UserManager as AuthUserManager
 import java.util.Locale
 
 class OnboardingActivity : ComponentActivity() {
@@ -186,7 +186,7 @@ class OnboardingActivity : ComponentActivity() {
                 homeLng = homeLongitude
             )
 
-            Toast.makeText(this, "Welcome to LankaFootprints, $name!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Welcome to CeylonSteps, $name!", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }

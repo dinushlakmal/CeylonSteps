@@ -22,13 +22,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val themeMode by tripViewModel.themeMode.collectAsStateWithLifecycle()
+            val appThemeType by tripViewModel.appThemeType.collectAsStateWithLifecycle()
             val isDark = when (themeMode) {
                 ThemeMode.SYSTEM -> isSystemInDarkTheme()
                 ThemeMode.LIGHT -> false
                 ThemeMode.DARK -> true
             }
 
-            MyApplicationTheme(darkTheme = isDark) {
+            MyApplicationTheme(darkTheme = isDark, appThemeType = appThemeType) {
                 MainScreen(viewModel = tripViewModel)
             }
         }

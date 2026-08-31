@@ -11,21 +11,26 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TripLocationDao {
-
-    @Query("SELECT * FROM trip_locations ORDER BY dateEpochMillis ASC")
+    @Query("SELECT * FROM trip_locations WHERE deletedAtEpochMillis IS NULL ORDER BY dateEpochMillis ASC")
     fun getAllTrips(): Flow<List<TripLocation>>
 
-    @Query("SELECT * FROM trip_locations ORDER BY dateEpochMillis ASC")
+    @Query("SELECT * FROM trip_locations WHERE deletedAtEpochMillis IS NULL ORDER BY dateEpochMillis ASC")
     suspend fun getAllTripsSync(): List<TripLocation>
 
-    @Query("SELECT * FROM trip_locations WHERE isUpcoming = 0 ORDER BY dateEpochMillis ASC")
+    @Query("SELECT * FROM trip_locations WHERE isUpcoming = 0 AND deletedAtEpochMillis IS NULL ORDER BY dateEpochMillis ASC")
     fun getPastTrips(): Flow<List<TripLocation>>
 
-    @Query("SELECT * FROM trip_locations WHERE isUpcoming = 0 ORDER BY dateEpochMillis ASC")
+    @Query("SELECT * FROM trip_locations WHERE isUpcoming = 0 AND deletedAtEpochMillis IS NULL ORDER BY dateEpochMillis ASC")
     fun getPastTripsChronological(): Flow<List<TripLocation>>
 
-    @Query("SELECT * FROM trip_locations WHERE isUpcoming = 1 ORDER BY dateEpochMillis ASC")
+    @Query("SELECT * FROM trip_locations WHERE isUpcoming = 1 AND deletedAtEpochMillis IS NULL ORDER BY dateEpochMillis ASC")
     fun getUpcomingTrips(): Flow<List<TripLocation>>
+
+    @Query("SELECT * FROM trip_locations WHERE deletedAtEpochMillis IS NOT NULL ORDER BY deletedAtEpochMillis DESC")
+    fun getRecycledTrips(): Flow<List<TripLocation>>
+
+    @Query("DELETE FROM trip_locations WHERE deletedAtEpochMillis IS NOT NULL AND deletedAtEpochMillis <= :cutoffEpochMillis")
+    suspend fun deleteOldRecycledTrips(cutoffEpochMillis: Long)
 
     @Query("SELECT * FROM trip_locations WHERE id = :id")
     suspend fun getTripById(id: Long): TripLocation?

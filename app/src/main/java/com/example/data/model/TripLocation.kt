@@ -14,5 +14,6 @@ data class TripLocation(
     val dateEpochMillis: Long,
     val isUpcoming: Boolean, // False for Past, True for Upcoming
     val imageUrisJson: String, // Stored as JSON array of local URIs
-    val coverImageUri: String?
+    val coverImageUri: String?,
+    val deletedAtEpochMillis: Long? = null
 )

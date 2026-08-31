@@ -3,7 +3,7 @@ package com.example.util
 import android.content.Context
 import android.util.Log
 import com.example.data.model.TripLocation
-import com.lankafootprints.travelapp.data.model.TripWithStops
+import com.ceylonsteps.travelapp.data.model.TripWithStops
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,6 +28,7 @@ enum class BackupTier(val title: String, val description: String) {
         "Database + Trip Photos + Recorded Videos"
     )
 }
+
 
 object GoogleDriveBackupEngine {
     private const val TAG = "DriveBackupEngine"
@@ -54,7 +55,7 @@ object GoogleDriveBackupEngine {
                 GsonFactory.getDefaultInstance(),
                 credential
             )
-            .setApplicationName("LankaFootprints")
+            .setApplicationName("CeylonSteps")
             .build()
             
             // 1. Generate JSON Backup
@@ -77,7 +78,7 @@ object GoogleDriveBackupEngine {
             onProgress(90, "Uploading to secure Google Cloud storage...")
             
             val fileMetadata = com.google.api.services.drive.model.File()
-            fileMetadata.name = "lankafootprints_backup.json"
+            fileMetadata.name = "ceylonsteps_backup.json"
             fileMetadata.parents = listOf(APP_DATA_FOLDER_SPACE)
 
             val mediaContent = ByteArrayContent.fromString("application/json", jsonPayload)
@@ -94,4 +95,49 @@ object GoogleDriveBackupEngine {
             RestoreResult(false, 0, 0, 0, "Drive backup failed: ${e.message}")
         }
     }
+
+    suspend fun restoreFromDrive(
+        context: Context,
+        account: GoogleSignInAccount,
+        onProgress: (Int, String) -> Unit
+    ): String? = withContext(Dispatchers.IO) {
+        try {
+            onProgress(10, "Connecting to Google Drive...")
+            val credential = GoogleAccountCredential.usingOAuth2(
+                context, listOf(DriveScopes.DRIVE_APPDATA)
+            )
+            credential.selectedAccount = account.account
+            val driveService = Drive.Builder(
+                NetHttpTransport(),
+                GsonFactory.getDefaultInstance(),
+                credential
+            )
+            .setApplicationName("CeylonSteps")
+            .build()
+
+            onProgress(40, "Looking for backup file...")
+            val result = driveService.files().list()
+                .setSpaces(APP_DATA_FOLDER_SPACE)
+                .setQ("name='ceylonsteps_backup.json'")
+                .setFields("files(id, name)")
+                .execute()
+
+            val file = result.files?.firstOrNull()
+            if (file != null) {
+                onProgress(70, "Downloading backup...")
+                val outputStream = java.io.ByteArrayOutputStream()
+                driveService.files().get(file.id).executeMediaAndDownloadTo(outputStream)
+                onProgress(100, "Download complete!")
+                return@withContext outputStream.toString("UTF-8")
+            } else {
+                onProgress(100, "No backup found.")
+                return@withContext null
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Drive restore failed", e)
+            onProgress(100, "Restore failed: ${e.message}")
+            return@withContext null
+        }
+    }
+
 }

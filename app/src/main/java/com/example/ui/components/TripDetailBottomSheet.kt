@@ -109,6 +109,7 @@ fun TripDetailBottomSheet(
     onToggleStatus: () -> Unit,
     onOpenMediaViewer: (mediaList: List<String>, initialIndex: Int) -> Unit = { _, _ -> }
 ) {
+    var showDeleteConfirm by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
 
@@ -123,6 +124,28 @@ fun TripDetailBottomSheet(
     val dateString = dateFormat.format(Date(trip.dateEpochMillis))
     val distanceFromHomeKm = GeoDistanceEngine.calculateDistanceFromHomeKm(trip, userProfile)
     val formattedHomeDist = GeoDistanceEngine.formatDistanceFromHome(distanceFromHomeKm)
+
+    if (showDeleteConfirm) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { androidx.compose.material3.Text("Delete Location") },
+            text = { androidx.compose.material3.Text("Are you sure you want to delete this location? It will be moved to the Recycle Bin and permanently deleted after 7 days.") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    showDeleteConfirm = false
+                    onDelete()
+                    onDismiss()
+                }) {
+                    androidx.compose.material3.Text("Delete", color = androidx.compose.material3.MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { showDeleteConfirm = false }) {
+                    androidx.compose.material3.Text("Cancel")
+                }
+            }
+        )
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -261,7 +284,7 @@ fun TripDetailBottomSheet(
                         IconButton(
                             onClick = {
                                 onEdit()
-                                onDismiss()
+                                
                             },
                             modifier = Modifier
                                 .size(36.dp)
@@ -279,14 +302,14 @@ fun TripDetailBottomSheet(
                         IconButton(
                             onClick = {
                                 val shareText = buildString {
-                                    append("🇱🇰 LankaFootprints Travel Memory:\n")
+                                    append("🇱🇰 CeylonSteps Travel Memory:\n")
                                     append("📍 ${trip.title} - ${trip.locationName}\n")
                                     append("📅 $dateString\n")
                                     append("🗺️ Coordinates: ${trip.latitude}, ${trip.longitude}\n\n")
                                     if (trip.description.isNotBlank()) {
                                         append("Notes:\n${trip.description}\n\n")
                                     }
-                                    append("Tracked with LankaFootprints (Sri Lanka Travel Journal)")
+                                    append("Tracked with CeylonSteps (Sri Lanka Travel Journal)")
                                 }
                                 val sendIntent = Intent().apply {
                                     action = Intent.ACTION_SEND
@@ -572,7 +595,7 @@ fun TripDetailBottomSheet(
                             OutlinedButton(
                                 onClick = {
                                     onEdit()
-                                    onDismiss()
+                                    
                                 },
                                 shape = RoundedCornerShape(12.dp),
                                 border = BorderStroke(1.dp, BentoPrimary.copy(alpha = 0.6f)),
@@ -702,7 +725,7 @@ fun TripDetailBottomSheet(
                                     .fillMaxWidth()
                                     .clickable {
                                         onEdit()
-                                        onDismiss()
+                                        
                                     },
                                 shape = RoundedCornerShape(14.dp),
                                 color = MaterialTheme.colorScheme.surface,
@@ -785,7 +808,7 @@ fun TripDetailBottomSheet(
                             Button(
                                 onClick = {
                                     onFocusMap()
-                                    onDismiss()
+                                    
                                 },
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = BentoPrimary)
@@ -880,7 +903,7 @@ fun TripDetailBottomSheet(
                     Button(
                         onClick = {
                             onEdit()
-                            onDismiss()
+                            
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(14.dp),
@@ -893,8 +916,8 @@ fun TripDetailBottomSheet(
 
                     IconButton(
                         onClick = {
-                            onDelete()
-                            onDismiss()
+                            showDeleteConfirm = true
+                            
                         },
                         modifier = Modifier
                             .size(48.dp)

@@ -95,12 +95,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.data.model.UserProfile
 import com.example.util.GeoUtils
-import com.lankafootprints.travelapp.data.model.StopType
-import com.lankafootprints.travelapp.data.model.Trip
-import com.lankafootprints.travelapp.data.model.TripStop
-import com.lankafootprints.travelapp.data.model.TripWithStops
-import com.lankafootprints.travelapp.data.repository.TripTimelineRepository
-import com.lankafootprints.travelapp.data.seed.DestinationDataSeeder
+import com.ceylonsteps.travelapp.data.model.StopType
+import com.ceylonsteps.travelapp.data.model.Trip
+import com.ceylonsteps.travelapp.data.model.TripStop
+import com.ceylonsteps.travelapp.data.model.TripWithStops
+import com.ceylonsteps.travelapp.data.repository.TripTimelineRepository
+import com.ceylonsteps.travelapp.data.seed.DestinationDataSeeder
 
 data class EditableStop(
     val tempId: Long = System.currentTimeMillis() + (0..1000).random(),
@@ -796,7 +796,7 @@ private fun StopEditorCard(
 @Composable
 private fun DestinationSelectionDialog(
     onDismissRequest: () -> Unit,
-    onDestinationSelected: (com.lankafootprints.travelapp.data.model.Destination) -> Unit
+    onDestinationSelected: (com.ceylonsteps.travelapp.data.model.Destination) -> Unit
 ) {
     val destinations = remember { DestinationDataSeeder.get100PlusDestinations() }
     var searchQuery by remember { mutableStateOf("") }

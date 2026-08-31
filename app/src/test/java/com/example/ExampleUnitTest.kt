@@ -3,10 +3,10 @@ package com.example
 import com.example.data.model.TripLocation
 import com.example.data.model.UserProfile
 import com.example.util.DatabaseBackupManager
-import com.lankafootprints.travelapp.data.model.StopType
-import com.lankafootprints.travelapp.data.model.Trip
-import com.lankafootprints.travelapp.data.model.TripStop
-import com.lankafootprints.travelapp.data.model.TripWithStops
+import com.ceylonsteps.travelapp.data.model.StopType
+import com.ceylonsteps.travelapp.data.model.Trip
+import com.ceylonsteps.travelapp.data.model.TripStop
+import com.ceylonsteps.travelapp.data.model.TripWithStops
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -78,7 +78,7 @@ class ExampleUnitTest {
 
         val json = DatabaseBackupManager.exportToJson(userProfile, trips, journeys)
         assertNotNull(json)
-        assertTrue(json.contains("LankaFootprints_TravelJournal"))
+        assertTrue(json.contains("CeylonSteps_TravelJournal"))
         assertTrue(json.contains("Cultural Triangle Road Trip"))
         assertTrue(json.contains("Sigiriya Rock Fortress"))
 

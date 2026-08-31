@@ -1,0 +1,3 @@
+sed -i 's/                            OutlinedButton(/                        Row(modifier = Modifier.fillMaxWidth()) {\n                            OutlinedButton(/g' app/src/main/java/com/example/ui/screens/ProfileScreen.kt
+
+sed -i 's/                                Text(text = "Recycle Bin", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.error)\n                            }/                                Text(text = "Recycle Bin", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = MaterialTheme.colorScheme.error)\n                            }\n                        }/g' app/src/main/java/com/example/ui/screens/ProfileScreen.kt
