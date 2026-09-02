@@ -59,6 +59,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -73,6 +74,7 @@ import com.example.data.model.SriLankaDestinations
 import com.example.data.model.UserProfile
 import com.example.ui.theme.BentoAmberSecondary
 import com.example.ui.theme.BentoBorderLight
+import com.example.ui.theme.BentoGreenAccent
 import com.example.ui.theme.BentoDeepPurple
 import com.example.ui.theme.BentoLavenderContainer
 import com.example.ui.theme.BentoOnPrimaryContainer
@@ -88,13 +90,15 @@ import java.util.Locale
 fun EditProfileBottomSheet(
     currentProfile: UserProfile,
     onDismiss: () -> Unit,
-    onSave: (name: String, imageUri: String?, homeLocationName: String, homeLat: Double, homeLng: Double) -> Unit
+    onSave: (name: String, imageUri: String?, coverUri: String?, bio: String, homeLocationName: String, homeLat: Double, homeLng: Double) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val context = LocalContext.current
 
     var name by remember { mutableStateOf(currentProfile.userName) }
+    var bio by remember { mutableStateOf(currentProfile.bio) }
     var selectedImageUri by remember { mutableStateOf(currentProfile.profileImageUri) }
+    var selectedCoverUri by remember { mutableStateOf(currentProfile.coverImageUri) }
     var homeLocationName by remember { mutableStateOf(currentProfile.homeLocationName) }
     var homeLatitude by remember { mutableDoubleStateOf(currentProfile.homeLatitude) }
     var homeLongitude by remember { mutableDoubleStateOf(currentProfile.homeLongitude) }
@@ -105,6 +109,14 @@ fun EditProfileBottomSheet(
     ) { uri: Uri? ->
         if (uri != null) {
             selectedImageUri = uri.toString()
+        }
+    }
+
+    val coverPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            selectedCoverUri = uri.toString()
         }
     }
 
@@ -187,55 +199,143 @@ fun EditProfileBottomSheet(
                 }
             }
 
-            // Avatar Selector
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                contentAlignment = Alignment.Center
+            // Cover Photo & Avatar Selector (Facebook Style)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(90.dp)
-                        .clip(CircleShape)
-                        .background(BentoLavenderContainer)
-                        .clickable { photoPickerLauncher.launch("image/*") }
-                        .testTag("btn_change_avatar_photo"),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (selectedImageUri != null) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(context)
-                                .data(selectedImageUri)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = "Profile Avatar",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
-                        Text(
-                            text = name.take(2).uppercase().ifBlank { "LF" },
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = BentoOnPrimaryContainer
-                            )
-                        )
-                    }
+                Column(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        text = "PHOTOS & BRANDING",
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = BentoPrimary)
+                    )
 
+                    // Cover Photo Box
                     Box(
                         modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .size(28.dp)
-                            .background(BentoPrimary, CircleShape),
+                            .fillMaxWidth()
+                            .height(110.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clickable { coverPickerLauncher.launch("image/*") }
+                            .testTag("btn_change_cover_photo"),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.AddPhotoAlternate,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
+                        if (selectedCoverUri != null) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(selectedCoverUri)
+                                    .crossfade(true)
+                                    .build(),
+                                contentDescription = "Cover Photo",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(
+                                        Brush.horizontalGradient(
+                                            listOf(
+                                                BentoPrimary.copy(alpha = 0.7f),
+                                                BentoAmberSecondary.copy(alpha = 0.6f),
+                                                BentoGreenAccent.copy(alpha = 0.6f)
+                                            )
+                                        )
+                                    )
+                            )
+                        }
+
+                        Surface(
+                            shape = RoundedCornerShape(20.dp),
+                            color = Color.Black.copy(alpha = 0.6f),
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AddPhotoAlternate,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = if (selectedCoverUri != null) "Change Cover Photo" else "Upload Cover Photo",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+
+                    // Avatar Selector Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(72.dp)
+                                .clip(CircleShape)
+                                .background(BentoLavenderContainer)
+                                .clickable { photoPickerLauncher.launch("image/*") }
+                                .testTag("btn_change_avatar_photo"),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (selectedImageUri != null) {
+                                AsyncImage(
+                                    model = ImageRequest.Builder(context)
+                                        .data(selectedImageUri)
+                                        .crossfade(true)
+                                        .build(),
+                                    contentDescription = "Profile Avatar",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Text(
+                                    text = name.take(2).uppercase().ifBlank { "LF" },
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = BentoOnPrimaryContainer
+                                    )
+                                )
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .size(24.dp)
+                                    .background(BentoPrimary, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(13.dp)
+                                )
+                            }
+                        }
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Profile Picture",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                            )
+                            Text(
+                                text = "Tap avatar to change or upload new photo",
+                                style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            )
+                        }
                     }
                 }
             }
@@ -250,6 +350,19 @@ fun EditProfileBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("input_edit_name"),
+                shape = RoundedCornerShape(14.dp)
+            )
+
+            // Bio Field
+            OutlinedTextField(
+                value = bio,
+                onValueChange = { bio = it },
+                label = { Text("Bio / Status") },
+                placeholder = { Text("e.g. Exploring the paradise island of Sri Lanka 🇱🇰") },
+                maxLines = 3,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("input_edit_bio"),
                 shape = RoundedCornerShape(14.dp)
             )
 
@@ -350,7 +463,7 @@ fun EditProfileBottomSheet(
                         Toast.makeText(context, "Please enter your name", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
-                    onSave(name.trim(), selectedImageUri, homeLocationName, homeLatitude, homeLongitude)
+                    onSave(name.trim(), selectedImageUri, selectedCoverUri, bio.trim(), homeLocationName, homeLatitude, homeLongitude)
                 },
                 modifier = Modifier
                     .fillMaxWidth()

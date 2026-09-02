@@ -63,7 +63,7 @@
                     android:background="@drawable/bg_secondary_button"
                     android:contentDescription="Profile Photo"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/ic_ceylonsteps_brand_logo"
+                    android:src="@drawable/ic_ceylonsteps_brand_logo" />
 
                 <TextView
                     android:id="@+id/tv_avatar_initials"

@@ -33,6 +33,13 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
 import com.google.api.services.drive.DriveScopes
 import com.ceylonsteps.travelapp.auth.UserManager as AuthUserManager
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.example.data.db.AppDatabase
+import com.example.util.DatabaseBackupManager
+import com.example.util.GoogleDriveBackupEngine
 import java.util.Locale
 
 class OnboardingActivity : ComponentActivity() {
@@ -93,7 +100,41 @@ class OnboardingActivity : ComponentActivity() {
                         transformations(CircleCropTransformation())
                     }
                 }
-                Toast.makeText(this, "Signed in as ${account.email}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Signed in as ${account.email}. Syncing backup from Google Drive...", Toast.LENGTH_SHORT).show()
+                
+                lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        val jsonString = GoogleDriveBackupEngine.restoreFromDrive(this@OnboardingActivity, account) { _, _ -> }
+                        if (!jsonString.isNullOrBlank()) {
+                            val database = AppDatabase.getDatabase(applicationContext)
+                            val parsedBackup = DatabaseBackupManager.parseJson(jsonString)
+                            DatabaseBackupManager.restoreDatabase(
+                                context = this@OnboardingActivity,
+                                database = database,
+                                backupData = parsedBackup,
+                                overwriteExisting = false,
+                                restoreUserProfile = true
+                            )
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(
+                                    this@OnboardingActivity,
+                                    "Google Drive backup restored: ${parsedBackup.tripLocations.size} footprints restored!",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                parsedBackup.userProfile?.let { prof ->
+                                    etUserName.setText(prof.userName)
+                                    homeLocationName = prof.homeLocationName
+                                    homeLatitude = prof.homeLatitude
+                                    homeLongitude = prof.homeLongitude
+                                    tvDetectedHomeName.text = prof.homeLocationName
+                                    tvDetectedCoordinates.text = String.format(Locale.US, "GPS: %.4f° N, %.4f° E", homeLatitude, homeLongitude)
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        // Silent fallback
+                    }
+                }
             }
         } catch (e: ApiException) {
             Toast.makeText(this, "Google Sign-In failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()

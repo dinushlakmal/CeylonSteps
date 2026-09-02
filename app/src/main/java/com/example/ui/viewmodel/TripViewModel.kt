@@ -11,16 +11,24 @@ import com.example.data.model.UserProfile
 import com.example.data.repository.TripRepository
 import com.example.data.repository.UserManager
 import com.example.util.GeoDistanceEngine
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.example.util.GoogleDriveBackupEngine
+import com.example.util.GoogleDriveMediaEngine
+import android.content.Context
+import android.widget.Toast
 import com.ceylonsteps.travelapp.data.model.Trip
 import com.ceylonsteps.travelapp.data.model.TripStop
 import com.ceylonsteps.travelapp.data.model.TripWithStops
 import com.ceylonsteps.travelapp.data.repository.TripTimelineRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 enum class FilterTab {
     ALL,
@@ -34,6 +42,7 @@ enum class NavigationTab {
     TIMELINE,
     CALENDAR,
     EXPLORER,
+    COMMUNITY,
     PROFILE
 }
 
@@ -67,7 +76,7 @@ data class TripUiState(
     val isBackupLoading: Boolean = false,
     val backupOperationResult: com.example.util.RestoreResult? = null,
     val appThemeType: com.example.data.repository.AppThemeType = com.example.data.repository.AppThemeType.DEFAULT,
-    val themeMode: com.example.data.repository.ThemeMode = com.example.data.repository.ThemeMode.SYSTEM,
+    val themeMode: com.example.data.repository.ThemeMode = com.example.data.repository.ThemeMode.LIGHT,
     val filteredTrips: List<TripLocation> = emptyList(),
     val pastTrips: List<TripLocation> = emptyList(),
     val upcomingTrips: List<TripLocation> = emptyList(),
@@ -78,14 +87,19 @@ data class TripUiState(
     val filterTab: FilterTab = FilterTab.ALL,
     val selectedProvince: String? = null,
     val searchQuery: String = "",
-    val activeNavigationTab: NavigationTab = NavigationTab.MAP,
+    val activeNavigationTab: NavigationTab = NavigationTab.COMMUNITY,
     val isAddEditSheetOpen: Boolean = false,
     val tripToEdit: TripLocation? = null,
     val detailTrip: TripLocation? = null,
     val isMapPickerMode: Boolean = false,
     val pickedCoordinates: Pair<Double, Double>? = null,
     val mapCenterTarget: Pair<Double, Double>? = Pair(7.8731, 80.7718), // Sri Lanka center
-    val mapTargetZoom: Double = 8.2
+    val mapTargetZoom: Double = 8.2,
+    val socialPosts: List<com.example.data.model.social.SocialPost> = emptyList(),
+    val socialCommentsMap: Map<String, List<com.example.data.model.social.SocialComment>> = emptyMap(),
+    val isShareSocialDialogOpen: Boolean = false,
+    val isDriveSyncing: Boolean = false,
+    val lastDriveSyncTime: Long? = null
 )
 
 class TripViewModel(application: Application) : AndroidViewModel(application) {
@@ -93,11 +107,13 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: TripRepository = (application as CeylonStepsApp).repository
     private val timelineRepository: TripTimelineRepository = (application as CeylonStepsApp).timelineRepository
     private val userManager: UserManager = UserManager.getInstance(application)
+    private val socialEngine: com.example.data.repository.FirestoreSocialEngine =
+        com.example.data.repository.FirestoreSocialEngine.getInstance(application)
 
     private val _filterTab = MutableStateFlow(FilterTab.ALL)
     private val _selectedProvince = MutableStateFlow<String?>(null)
     private val _searchQuery = MutableStateFlow("")
-    private val _activeNavigationTab = MutableStateFlow(NavigationTab.MAP)
+    private val _activeNavigationTab = MutableStateFlow(NavigationTab.COMMUNITY)
     private val _selectedTrip = MutableStateFlow<TripLocation?>(null)
     private val _isAddEditSheetOpen = MutableStateFlow(false)
     private val _isEditProfileOpen = MutableStateFlow(false)
@@ -118,6 +134,38 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
     val recycledTrips: StateFlow<List<TripLocation>> = repository.recycledTrips.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     private val _isBackupLoading = MutableStateFlow(false)
     private val _backupOperationResult = MutableStateFlow<com.example.util.RestoreResult?>(null)
+    private val _isShareSocialDialogOpen = MutableStateFlow(false)
+    private val _isDriveSyncing = MutableStateFlow(false)
+    val isDriveSyncing: StateFlow<Boolean> = _isDriveSyncing
+    private val _lastDriveSyncTime = MutableStateFlow<Long?>(null)
+    val lastDriveSyncTime: StateFlow<Long?> = _lastDriveSyncTime
+
+    /**
+     * Automatically uploads latest database & profile snapshot to Google Drive in background
+     */
+    fun triggerAutoDriveBackup() {
+        val account = GoogleSignIn.getLastSignedInAccount(getApplication()) ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _isDriveSyncing.value = true
+                val trips = repository.getAllTripsSync()
+                val journeys = timelineRepository.getAllTripsWithStopsSync()
+                val success = GoogleDriveBackupEngine.performAutoSync(
+                    context = getApplication(),
+                    account = account,
+                    trips = trips,
+                    journeys = journeys
+                )
+                if (success) {
+                    _lastDriveSyncTime.value = System.currentTimeMillis()
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("TripViewModel", "Auto-drive backup error: ${e.message}")
+            } finally {
+                _isDriveSyncing.value = false
+            }
+        }
+    }
 
     val uiState: StateFlow<TripUiState> = combine(
         combine(
@@ -157,12 +205,13 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
             Triple(zoom, isBuilderOpen, Triple(editJourney, activeJourney, mediaState))
         },
         combine(
-            _isOfflineMapDialogOpen,
-            _isBackupRestoreDialogOpen,
-            _isBackupLoading,
-            _backupOperationResult
-        ) { isOffline, isBackup, isLoading, result ->
-            Triple(isOffline, isBackup, Pair(isLoading, result))
+            combine(_isOfflineMapDialogOpen, _isBackupRestoreDialogOpen) { off, bak -> Pair(off, bak) },
+            combine(_isBackupLoading, _backupOperationResult) { load, res -> Pair(load, res) },
+            socialEngine.posts,
+            socialEngine.commentsMap,
+            _isShareSocialDialogOpen
+        ) { dialogs, backupState, posts, commentsMap, isShareOpen ->
+            Triple(dialogs, backupState, Triple(posts, commentsMap, isShareOpen))
         }
     ) { group1, group2, group3, group4, group5 ->
         val trips = group1.first
@@ -190,10 +239,13 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
         val activeJourney = group4.third.second
         val mediaState = group4.third.third
 
-        val isOfflineOpen = group5.first
-        val isBackupOpen = group5.second
-        val isBackupLoading = group5.third.first
-        val backupResult = group5.third.second
+        val isOfflineOpen = group5.first.first
+        val isBackupOpen = group5.first.second
+        val isBackupLoading = group5.second.first
+        val backupResult = group5.second.second
+        val socialPosts = group5.third.first
+        val socialComments = group5.third.second
+        val isShareSocialOpen = group5.third.third
 
         val past = trips.filter { !it.isUpcoming }.sortedBy { it.dateEpochMillis }
         val upcoming = trips.filter { it.isUpcoming }.sortedBy { it.dateEpochMillis }
@@ -258,7 +310,11 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
             pickedCoordinates = pickedCoords,
             mapCenterTarget = center,
             mapTargetZoom = zoom,
-            themeMode = userManager.getThemeMode(), appThemeType = userManager.getAppThemeType()
+            socialPosts = socialPosts,
+            socialCommentsMap = socialComments,
+            isShareSocialDialogOpen = isShareSocialOpen,
+            themeMode = userManager.getThemeMode(),
+            appThemeType = userManager.getAppThemeType()
         )
     }.stateIn(
         scope = viewModelScope,
@@ -293,6 +349,7 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
             timelineRepository.saveMultiStopTrip(trip, stops)
             _isMultiStopBuilderOpen.value = false
             _journeyToEdit.value = null
+            triggerAutoDriveBackup()
         }
     }
 
@@ -302,6 +359,7 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
             if (_activeJourneyOnMap.value?.trip?.tripId == tripId) {
                 _activeJourneyOnMap.value = null
             }
+            triggerAutoDriveBackup()
         }
     }
 
@@ -460,6 +518,7 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
             _mapCenterTarget.value = Pair(latitude, longitude)
             _mapTargetZoom.value = 12.5
             closeAddEditDialog()
+            triggerAutoDriveBackup()
         }
     }
 
@@ -479,18 +538,21 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
             if (_detailTrip.value?.id == trip.id) {
                 _detailTrip.value = null
             }
+            triggerAutoDriveBackup()
         }
     }
 
     fun restoreTrip(trip: TripLocation) {
         viewModelScope.launch {
             repository.updateTrip(trip.copy(deletedAtEpochMillis = null))
+            triggerAutoDriveBackup()
         }
     }
 
     fun permanentlyDeleteTrip(trip: TripLocation) {
         viewModelScope.launch {
             repository.deleteTrip(trip)
+            triggerAutoDriveBackup()
         }
     }
 
@@ -504,6 +566,7 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
             if (_detailTrip.value?.id == trip.id) {
                 _detailTrip.value = updated
             }
+            triggerAutoDriveBackup()
         }
     }
 
@@ -634,9 +697,43 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun restoreFromGoogleDriveAuto(
+        context: Context,
+        account: GoogleSignInAccount,
+        onComplete: ((Boolean, String) -> Unit)? = null
+    ) {
+        viewModelScope.launch {
+            _isBackupLoading.value = true
+            try {
+                val jsonString = GoogleDriveBackupEngine.restoreFromDrive(context, account) { _, _ -> }
+                if (!jsonString.isNullOrBlank()) {
+                    val database = com.example.data.db.AppDatabase.getDatabase(getApplication())
+                    val parsedBackup = com.example.util.DatabaseBackupManager.parseJson(jsonString)
+                    val result = com.example.util.DatabaseBackupManager.restoreDatabase(
+                        context = context,
+                        database = database,
+                        backupData = parsedBackup,
+                        overwriteExisting = false,
+                        restoreUserProfile = true
+                    )
+                    _backupOperationResult.value = result
+                    onComplete?.invoke(true, "Cloud backup restored: ${result.tripsImported} footprints & journeys synchronized!")
+                } else {
+                    onComplete?.invoke(false, "No previous backup found on Google Drive.")
+                }
+            } catch (e: Exception) {
+                onComplete?.invoke(false, "Restore error: ${e.localizedMessage ?: "Unknown error"}")
+            } finally {
+                _isBackupLoading.value = false
+            }
+        }
+    }
+
     fun saveUserProfile(
         name: String,
         imageUri: String?,
+        coverUri: String? = null,
+        bio: String = "",
         homeLocationName: String,
         homeLat: Double,
         homeLng: Double
@@ -644,11 +741,240 @@ class TripViewModel(application: Application) : AndroidViewModel(application) {
         userManager.updateProfile(
             name = name,
             imageUri = imageUri,
+            coverUri = coverUri,
+            bio = bio,
             homeLocationName = homeLocationName,
             homeLat = homeLat,
             homeLng = homeLng
         )
         _isEditProfileOpen.value = false
+
+        val account = GoogleSignIn.getLastSignedInAccount(getApplication())
+        if (account != null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                var finalCover = coverUri
+                var finalAvatar = imageUri
+                if (coverUri != null && !coverUri.startsWith("http://") && !coverUri.startsWith("https://")) {
+                    val cdn = GoogleDriveMediaEngine.uploadSingleImage(getApplication(), account, coverUri, "ceylon_cover")
+                    if (cdn != null) finalCover = cdn
+                }
+                if (imageUri != null && !imageUri.startsWith("http://") && !imageUri.startsWith("https://")) {
+                    val cdn = GoogleDriveMediaEngine.uploadSingleImage(getApplication(), account, imageUri, "ceylon_avatar")
+                    if (cdn != null) finalAvatar = cdn
+                }
+                userManager.updateProfile(
+                    name = name,
+                    imageUri = finalAvatar,
+                    coverUri = finalCover,
+                    bio = bio,
+                    homeLocationName = homeLocationName,
+                    homeLat = homeLat,
+                    homeLng = homeLng
+                )
+                triggerAutoDriveBackup()
+            }
+        } else {
+            triggerAutoDriveBackup()
+        }
+    }
+
+    // ==========================================
+    // SOCIAL FEED & COMMUNITY ENGINE
+    // ==========================================
+
+    fun setShareSocialDialogOpen(isOpen: Boolean) {
+        _isShareSocialDialogOpen.value = isOpen
+    }
+
+    fun togglePostLike(postId: String) {
+        viewModelScope.launch {
+            val currentUserId = userManager.userProfile.value.userName
+            socialEngine.toggleLike(postId, currentUserId)
+        }
+    }
+
+    fun toggleUserFollow(targetUserId: String) {
+        viewModelScope.launch {
+            val currentUserId = userManager.userProfile.value.userName
+            socialEngine.toggleFollow(targetUserId, currentUserId)
+        }
+    }
+
+    fun addSocialComment(postId: String, text: String) {
+        viewModelScope.launch {
+            val profile = userManager.userProfile.value
+            val comment = com.example.data.model.social.SocialComment(
+                postId = postId,
+                authorId = profile.userName,
+                authorName = profile.userName.ifBlank { "Explorer" },
+                authorAvatarUrl = profile.profileImageUri,
+                authorBadge = "Lanka Explorer",
+                text = text
+            )
+            socialEngine.addComment(postId, comment)
+        }
+    }
+
+    fun listenToSocialComments(postId: String) {
+        socialEngine.listenToComments(postId)
+    }
+
+    fun deleteSocialPost(postId: String) {
+        viewModelScope.launch {
+            val profile = userManager.userProfile.value
+            val authorId = profile.userEmail.ifBlank { profile.userName.ifBlank { "user_local_explorer" } }
+            socialEngine.deletePost(postId, authorId)
+        }
+    }
+
+    fun updateSocialPost(post: com.example.data.model.social.SocialPost) {
+        viewModelScope.launch {
+            socialEngine.updatePost(post)
+        }
+    }
+
+    fun saveCommunityPostToLocalTrips(post: com.example.data.model.social.SocialPost) {
+        viewModelScope.launch {
+            val trip = TripLocation(
+                title = post.title,
+                locationName = post.locationName,
+                latitude = post.latitude,
+                longitude = post.longitude,
+                dateEpochMillis = post.travelDateEpoch,
+                description = "${post.story}\n\nShared by ${post.authorName} on CeylonSteps Community." +
+                        if (post.isMultiStop) "\nStops: ${post.stopNames.joinToString(" ➔ ")}" else "",
+                isUpcoming = false,
+                imageUrisJson = TripRepository.toJsonArray(post.mediaUrls),
+                coverImageUri = post.mediaUrls.firstOrNull()
+            )
+            repository.insertTrip(trip)
+            triggerAutoDriveBackup()
+        }
+    }
+
+    val isUserLoggedIn: StateFlow<Boolean> = userManager.isLoggedIn
+
+    val followingUserIds: StateFlow<Set<String>> = socialEngine.followingUserIds
+    val followersList: StateFlow<List<com.example.data.model.social.FollowerUser>> = socialEngine.followersList
+    val followingList: StateFlow<List<com.example.data.model.social.FollowerUser>> = socialEngine.followingList
+
+    fun removeFollower(targetUserId: String) {
+        socialEngine.removeFollower(targetUserId)
+    }
+
+    fun updateProfileAvatar(imageUri: String?) {
+        userManager.updateAvatar(imageUri)
+        if (imageUri != null && !imageUri.startsWith("http://") && !imageUri.startsWith("https://")) {
+            val account = GoogleSignIn.getLastSignedInAccount(getApplication())
+            if (account != null) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        _isDriveSyncing.value = true
+                        val cdnUrl = GoogleDriveMediaEngine.uploadSingleImage(
+                            context = getApplication(),
+                            account = account,
+                            imageUri = imageUri,
+                            filePrefix = "ceylon_avatar"
+                        )
+                        if (cdnUrl != null) {
+                            userManager.updateAvatar(cdnUrl)
+                        }
+                    } catch (e: Exception) {
+                        android.util.Log.w("TripViewModel", "Avatar upload to Drive failed: ${e.message}")
+                    } finally {
+                        _isDriveSyncing.value = false
+                        triggerAutoDriveBackup()
+                    }
+                }
+                return
+            }
+        }
+        triggerAutoDriveBackup()
+    }
+
+    fun updateProfileCover(coverUri: String?) {
+        userManager.updateCover(coverUri)
+        if (coverUri != null && !coverUri.startsWith("http://") && !coverUri.startsWith("https://")) {
+            val account = GoogleSignIn.getLastSignedInAccount(getApplication())
+            if (account != null) {
+                viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        _isDriveSyncing.value = true
+                        val cdnUrl = GoogleDriveMediaEngine.uploadSingleImage(
+                            context = getApplication(),
+                            account = account,
+                            imageUri = coverUri,
+                            filePrefix = "ceylon_cover"
+                        )
+                        if (cdnUrl != null) {
+                            userManager.updateCover(cdnUrl)
+                        }
+                    } catch (e: Exception) {
+                        android.util.Log.w("TripViewModel", "Cover upload to Drive failed: ${e.message}")
+                    } finally {
+                        _isDriveSyncing.value = false
+                        triggerAutoDriveBackup()
+                    }
+                }
+                return
+            }
+        }
+        triggerAutoDriveBackup()
+    }
+
+    fun loginWithGoogle(account: com.google.android.gms.auth.api.signin.GoogleSignInAccount) {
+        val email = account.email ?: "explorer@ceylonsteps.lk"
+        val name = account.displayName ?: email.substringBefore("@")
+        val photo = account.photoUrl?.toString()
+        userManager.loginWithGoogle(email, name, photo)
+        com.ceylonsteps.travelapp.auth.UserManager.autoRegisterFromGoogle(
+            context = getApplication(),
+            account = account
+        )
+
+        // Automatically sync and restore past data from Google Drive on login
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                _isDriveSyncing.value = true
+                val database = (getApplication() as CeylonStepsApp).database
+                val restoreResult = GoogleDriveBackupEngine.restoreAndApplyFromDrive(
+                    context = getApplication(),
+                    account = account,
+                    database = database
+                )
+                withContext(Dispatchers.Main) {
+                    if (restoreResult.isSuccess && (restoreResult.tripsImported > 0 || restoreResult.journeysImported > 0)) {
+                        Toast.makeText(
+                            getApplication(),
+                            "Google Drive data restored: ${restoreResult.tripsImported} footprints & profile! 🇱🇰",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("TripViewModel", "Auto-restore on login failed: ${e.message}")
+            } finally {
+                _isDriveSyncing.value = false
+                triggerAutoDriveBackup()
+            }
+        }
+    }
+
+    fun loginWithEmail(email: String, pass: String): Result<UserProfile> {
+        return userManager.loginWithEmail(email, pass)
+    }
+
+    fun registerWithEmail(email: String, pass: String, name: String): Result<UserProfile> {
+        return userManager.registerWithEmail(email, pass, name)
+    }
+
+    fun loginAsGuest(): UserProfile {
+        return userManager.loginAsGuest()
+    }
+
+    fun logoutUser(context: Context) {
+        userManager.logout()
+        com.ceylonsteps.travelapp.auth.UserManager.signOut(context)
     }
 }
 

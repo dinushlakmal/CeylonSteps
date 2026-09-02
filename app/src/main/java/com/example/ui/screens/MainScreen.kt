@@ -47,6 +47,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Diversity3
+import androidx.compose.material.icons.outlined.Diversity3
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Person
@@ -110,6 +112,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.data.model.SriLankaDestinations
 import com.example.data.repository.TripRepository
+import android.widget.Toast
 import com.example.ui.components.AddEditMultiStopTripDialog
 import com.example.ui.components.AddEditTripDialog
 import com.example.ui.components.BackupRestoreDialog
@@ -118,12 +121,14 @@ import com.example.ui.components.EditProfileBottomSheet
 import com.example.ui.components.MediaViewerDialog
 import com.example.ui.components.OfflineMapCacheDialog
 import com.example.ui.components.OsmMapView
+import com.example.ui.components.ShareTripSocialDialog
 import com.example.ui.components.SriLankaExplorerView
 import com.example.ui.components.StatsHeaderCard
 import com.example.ui.components.TripCard
 import com.example.ui.components.TripDetailBottomSheet
 import com.example.ui.components.TripTimelineCard
 import com.example.ui.components.isVideoMedia
+import com.example.ui.screens.CommunityFeedScreen
 import com.example.ui.screens.ProfileScreen
 import com.example.ui.theme.BentoActiveIndicator
 import com.example.ui.theme.BentoAmberSecondary
@@ -141,12 +146,17 @@ import com.example.util.GeoDistanceEngine
 import com.example.ui.viewmodel.FilterTab
 import com.example.ui.viewmodel.NavigationTab
 import com.example.ui.viewmodel.TripViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import androidx.compose.ui.platform.LocalContext
 import org.osmdroid.views.MapView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(viewModel: TripViewModel) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val followersList by viewModel.followersList.collectAsStateWithLifecycle()
+    val followingList by viewModel.followingList.collectAsStateWithLifecycle()
     var isSearchOpen by remember { mutableStateOf(false) }
     var isProvinceMenuOpen by remember { mutableStateOf(false) }
     var useTopoMap by remember { mutableStateOf(false) }
@@ -159,6 +169,11 @@ fun MainScreen(viewModel: TripViewModel) {
             .testTag("main_scaffold"),
         topBar = {
             TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                ),
                 title = {
                     if (isSearchOpen) {
                         OutlinedTextField(
@@ -191,12 +206,12 @@ fun MainScreen(viewModel: TripViewModel) {
                 actions = {
                     if (!isSearchOpen) {
                         Surface(
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(10.dp),
                             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                             modifier = Modifier
                                 .padding(end = 4.dp)
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(12.dp))
+                                .size(34.dp)
+                                .clip(RoundedCornerShape(10.dp))
                                 .clickable { isSearchOpen = true }
                                 .testTag("btn_search_toggle")
                         ) {
@@ -204,7 +219,7 @@ fun MainScreen(viewModel: TripViewModel) {
                                 Icon(
                                     imageVector = Icons.Default.Search,
                                     contentDescription = "Search",
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(17.dp)
                                 )
                             }
                         }
@@ -213,13 +228,13 @@ fun MainScreen(viewModel: TripViewModel) {
                     // Province Filter Menu
                     Box {
                         Surface(
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(10.dp),
                             color = if (uiState.selectedProvince != null) BentoAmberSecondary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                             border = if (uiState.selectedProvince != null) BorderStroke(1.dp, BentoAmberSecondary) else null,
                             modifier = Modifier
                                 .padding(end = 4.dp)
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(12.dp))
+                                .size(34.dp)
+                                .clip(RoundedCornerShape(10.dp))
                                 .clickable { isProvinceMenuOpen = true }
                                 .testTag("btn_province_filter")
                         ) {
@@ -228,7 +243,7 @@ fun MainScreen(viewModel: TripViewModel) {
                                     imageVector = Icons.Default.FilterList,
                                     contentDescription = "Filter Province",
                                     tint = if (uiState.selectedProvince != null) BentoAmberSecondary else MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(17.dp)
                                 )
                             }
                         }
@@ -260,13 +275,13 @@ fun MainScreen(viewModel: TripViewModel) {
                     // Map layer switch if in Map view
                     if (uiState.activeNavigationTab == NavigationTab.MAP) {
                         Surface(
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(10.dp),
                             color = if (useTopoMap) BentoPrimary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                             border = if (useTopoMap) BorderStroke(1.dp, BentoPrimary) else null,
                             modifier = Modifier
                                 .padding(end = 4.dp)
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(12.dp))
+                                .size(34.dp)
+                                .clip(RoundedCornerShape(10.dp))
                                 .clickable { useTopoMap = !useTopoMap }
                                 .testTag("btn_map_layer")
                         ) {
@@ -275,7 +290,7 @@ fun MainScreen(viewModel: TripViewModel) {
                                     imageVector = Icons.Default.Layers,
                                     contentDescription = "Toggle Map Layer",
                                     tint = if (useTopoMap) BentoPrimary else MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(17.dp)
                                 )
                             }
                         }
@@ -283,12 +298,12 @@ fun MainScreen(viewModel: TripViewModel) {
 
                     // Quick Theme Toggle Button
                     Surface(
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(10.dp),
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
                         modifier = Modifier
-                            .padding(end = 6.dp)
-                            .size(38.dp)
-                            .clip(RoundedCornerShape(12.dp))
+                            .padding(end = 4.dp)
+                            .size(34.dp)
+                            .clip(RoundedCornerShape(10.dp))
                             .clickable {
                                 val nextMode = when (uiState.themeMode) {
                                     com.example.data.repository.ThemeMode.SYSTEM -> com.example.data.repository.ThemeMode.DARK
@@ -309,7 +324,7 @@ fun MainScreen(viewModel: TripViewModel) {
                                 imageVector = icon,
                                 contentDescription = "Toggle Theme Mode (${uiState.themeMode.name})",
                                 tint = BentoAmberSecondary,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(17.dp)
                             )
                         }
                     }
@@ -317,8 +332,8 @@ fun MainScreen(viewModel: TripViewModel) {
                     // Bento User Avatar Pill
                     Surface(
                         modifier = Modifier
-                            .padding(end = 12.dp)
-                            .size(38.dp)
+                            .padding(end = 8.dp)
+                            .size(34.dp)
                             .clip(CircleShape)
                             .clickable { viewModel.setNavigationTab(NavigationTab.PROFILE) }
                             .testTag("btn_top_avatar_profile"),
@@ -354,10 +369,7 @@ fun MainScreen(viewModel: TripViewModel) {
                             }
                         }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                )
+                }
             )
         },
         bottomBar = {
@@ -375,6 +387,23 @@ fun MainScreen(viewModel: TripViewModel) {
                 tonalElevation = 2.dp
             ) {
                 NavigationBarItem(
+                    selected = uiState.activeNavigationTab == NavigationTab.COMMUNITY,
+                    onClick = { viewModel.setNavigationTab(NavigationTab.COMMUNITY) },
+                    icon = {
+                        Icon(
+                            imageVector = if (uiState.activeNavigationTab == NavigationTab.COMMUNITY) Icons.Filled.Diversity3 else Icons.Outlined.Diversity3,
+                            contentDescription = "Community"
+                        )
+                    },
+                    label = { Text("Community", fontWeight = FontWeight.SemiBold) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = BentoOnPrimaryContainer,
+                        selectedTextColor = BentoOnPrimaryContainer,
+                        indicatorColor = BentoActiveIndicator
+                    )
+                )
+
+                NavigationBarItem(
                     selected = uiState.activeNavigationTab == NavigationTab.MAP,
                     onClick = { viewModel.setNavigationTab(NavigationTab.MAP) },
                     icon = {
@@ -384,57 +413,6 @@ fun MainScreen(viewModel: TripViewModel) {
                         )
                     },
                     label = { Text("Map", fontWeight = FontWeight.SemiBold) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = BentoOnPrimaryContainer,
-                        selectedTextColor = BentoOnPrimaryContainer,
-                        indicatorColor = BentoActiveIndicator
-                    )
-                )
-
-                NavigationBarItem(
-                    selected = uiState.activeNavigationTab == NavigationTab.TIMELINE,
-                    onClick = { viewModel.setNavigationTab(NavigationTab.TIMELINE) },
-                    icon = {
-                        Icon(
-                            imageVector = if (uiState.activeNavigationTab == NavigationTab.TIMELINE) Icons.Filled.Route else Icons.Outlined.Route,
-                            contentDescription = "Journeys"
-                        )
-                    },
-                    label = { Text("Journeys", fontWeight = FontWeight.SemiBold) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = BentoOnPrimaryContainer,
-                        selectedTextColor = BentoOnPrimaryContainer,
-                        indicatorColor = BentoActiveIndicator
-                    )
-                )
-
-                NavigationBarItem(
-                    selected = uiState.activeNavigationTab == NavigationTab.JOURNAL,
-                    onClick = { viewModel.setNavigationTab(NavigationTab.JOURNAL) },
-                    icon = {
-                        Icon(
-                            imageVector = if (uiState.activeNavigationTab == NavigationTab.JOURNAL) Icons.Filled.MenuBook else Icons.Outlined.MenuBook,
-                            contentDescription = "Journal"
-                        )
-                    },
-                    label = { Text("Journal", fontWeight = FontWeight.SemiBold) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = BentoOnPrimaryContainer,
-                        selectedTextColor = BentoOnPrimaryContainer,
-                        indicatorColor = BentoActiveIndicator
-                    )
-                )
-
-                NavigationBarItem(
-                    selected = uiState.activeNavigationTab == NavigationTab.CALENDAR,
-                    onClick = { viewModel.setNavigationTab(NavigationTab.CALENDAR) },
-                    icon = {
-                        Icon(
-                            imageVector = if (uiState.activeNavigationTab == NavigationTab.CALENDAR) Icons.Filled.CalendarMonth else Icons.Outlined.CalendarMonth,
-                            contentDescription = "Calendar"
-                        )
-                    },
-                    label = { Text("Calendar", fontWeight = FontWeight.SemiBold) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = BentoOnPrimaryContainer,
                         selectedTextColor = BentoOnPrimaryContainer,
@@ -478,7 +456,10 @@ fun MainScreen(viewModel: TripViewModel) {
             }
         },
         floatingActionButton = {
-            if (!uiState.isMapPickerMode) {
+            if (!uiState.isMapPickerMode &&
+                uiState.activeNavigationTab != NavigationTab.COMMUNITY &&
+                uiState.activeNavigationTab != NavigationTab.PROFILE
+            ) {
                 Column(
                     horizontalAlignment = Alignment.End,
                     verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -519,6 +500,19 @@ fun MainScreen(viewModel: TripViewModel) {
                                     Icon(Icons.Default.AddLocation, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text("+ Single Visit", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                }
+
+                                OutlinedButton(
+                                    onClick = {
+                                        isFabMenuOpen = false
+                                        viewModel.setShareSocialDialogOpen(true)
+                                    },
+                                    shape = RoundedCornerShape(12.dp),
+                                    modifier = Modifier.fillMaxWidth().testTag("fab_option_share_feed")
+                                ) {
+                                    Icon(Icons.Default.Diversity3, contentDescription = null, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("+ Post Story", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                                 }
                             }
                         }
@@ -1422,11 +1416,51 @@ fun MainScreen(viewModel: TripViewModel) {
                     )
                 }
 
+                NavigationTab.COMMUNITY -> {
+                    // Real-Time Community Explorer Feed & Social Discussions
+                    val currentAuthorId = uiState.userProfile.userEmail.ifBlank { uiState.userProfile.userName.ifBlank { "user_local_explorer" } }
+                    CommunityFeedScreen(
+                        posts = uiState.socialPosts,
+                        commentsMap = uiState.socialCommentsMap,
+                        currentAuthorId = currentAuthorId,
+                        selectedProvince = uiState.selectedProvince,
+                        onLikeToggle = { viewModel.togglePostLike(it) },
+                        onFollowToggle = { viewModel.toggleUserFollow(it) },
+                        onAddComment = { postId, text -> viewModel.addSocialComment(postId, text) },
+                        onListenToComments = { viewModel.listenToSocialComments(it) },
+                        onViewOnMap = { lat, lng, _ ->
+                            viewModel.centerMapOn(lat, lng, 13.0)
+                            viewModel.setNavigationTab(NavigationTab.MAP)
+                        },
+                        onSaveTripToLocal = { post ->
+                            viewModel.saveCommunityPostToLocalTrips(post)
+                            Toast.makeText(context, "Saved '${post.title}' to your local journal!", Toast.LENGTH_SHORT).show()
+                        },
+                        onOpenShareDialog = {
+                            viewModel.setShareSocialDialogOpen(true)
+                        },
+                        onOpenMediaViewer = { uris, idx ->
+                            viewModel.openMediaViewer(uris, idx, "Community Media", null)
+                        },
+                        onDeletePost = { viewModel.deleteSocialPost(it) },
+                        onEditPost = { viewModel.updateSocialPost(it) }
+                    )
+                }
+
                 NavigationTab.PROFILE -> {
                     // Explorer Profile, Province Badges, Stats & Theme Selector
                     ProfileScreen(
                         userProfile = uiState.userProfile,
                         trips = uiState.trips,
+                        journeys = uiState.journeysWithStops,
+                        socialPosts = uiState.socialPosts,
+                        followers = followersList,
+                        following = followingList,
+                        onToggleFollow = { viewModel.toggleUserFollow(it) },
+                        onRemoveFollower = { viewModel.removeFollower(it) },
+                        onDeleteSocialPost = { viewModel.deleteSocialPost(it) },
+                        onEditSocialPost = { viewModel.updateSocialPost(it) },
+                        onToggleLikeSocialPost = { viewModel.togglePostLike(it) },
                         totalDistanceKm = uiState.stats.totalDistanceKm,
                         roundTripFromHomeKm = uiState.stats.roundTripFromHomeKm,
                         currentThemeMode = uiState.themeMode,
@@ -1435,14 +1469,46 @@ fun MainScreen(viewModel: TripViewModel) {
                         onAppThemeTypeChange = { viewModel.setAppThemeType(it) },
                         onEditProfileClick = { viewModel.openEditProfile() },
                         onBackupRestoreClick = { viewModel.openBackupRestoreDialog() },
+                        onGoogleSignInSuccess = { account ->
+                            viewModel.loginWithGoogle(account)
+                        },
+                        onUpdateAvatar = { viewModel.updateProfileAvatar(it) },
+                        onUpdateCover = { viewModel.updateProfileCover(it) },
+                        onLogout = { viewModel.logoutUser(context) },
                         recycledTrips = uiState.recycledTrips,
                         onRestoreTrip = { viewModel.restoreTrip(it) },
                         onPermanentlyDeleteTrip = { viewModel.permanentlyDeleteTrip(it) },
-                        onTripClick = { viewModel.openTripDetail(it) }
+                        onTripClick = { viewModel.openTripDetail(it) },
+                        onOpenMultiStopBuilder = { viewModel.openMultiStopBuilder() },
+                        onSelectTripOnMap = { trip ->
+                            viewModel.selectTrip(trip)
+                            viewModel.setNavigationTab(NavigationTab.MAP)
+                        },
+                        onEditTrip = { viewModel.openEditTripDialog(it) },
+                        onDeleteTrip = { viewModel.deleteTrip(it) },
+                        onCenterMap = { lat, lng ->
+                            viewModel.centerMapOn(lat, lng, 12.5)
+                        },
+                        onOpenShareStoryDialog = { viewModel.setShareSocialDialogOpen(true) },
+                        onOpenAddTrip = { viewModel.openAddTripDialog() }
                     )
                 }
             }
         }
+    }
+
+    // Community Share Trip Dialog
+    if (uiState.isShareSocialDialogOpen) {
+        ShareTripSocialDialog(
+            userProfile = uiState.userProfile,
+            trips = uiState.trips,
+            journeys = uiState.journeysWithStops,
+            onDismiss = { viewModel.setShareSocialDialogOpen(false) },
+            onPostCreated = {
+                viewModel.setShareSocialDialogOpen(false)
+                Toast.makeText(context, "Story published to Ceylon Community feed!", Toast.LENGTH_SHORT).show()
+            }
+        )
     }
 
     // Modal Multi-Stop Trip Builder & Editor Dialog
@@ -1509,8 +1575,8 @@ fun MainScreen(viewModel: TripViewModel) {
         EditProfileBottomSheet(
             currentProfile = uiState.userProfile,
             onDismiss = { viewModel.closeEditProfile() },
-            onSave = { name, imageUri, homeLocationName, homeLat, homeLng ->
-                viewModel.saveUserProfile(name, imageUri, homeLocationName, homeLat, homeLng)
+            onSave = { name, imageUri, coverUri, bio, homeLocationName, homeLat, homeLng ->
+                viewModel.saveUserProfile(name, imageUri, coverUri, bio, homeLocationName, homeLat, homeLng)
             }
         )
     }

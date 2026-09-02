@@ -64,10 +64,15 @@ object DatabaseBackupManager {
         // 1. User Profile
         val profileJson = JSONObject()
         profileJson.put("userName", userProfile.userName)
+        profileJson.put("userEmail", userProfile.userEmail)
+        profileJson.put("authProvider", userProfile.authProvider)
         profileJson.put("profileImageUri", userProfile.profileImageUri ?: "")
+        profileJson.put("coverImageUri", userProfile.coverImageUri ?: "")
+        profileJson.put("bio", userProfile.bio)
         profileJson.put("homeLocationName", userProfile.homeLocationName)
         profileJson.put("homeLatitude", userProfile.homeLatitude)
         profileJson.put("homeLongitude", userProfile.homeLongitude)
+        profileJson.put("isOnboardingCompleted", userProfile.isOnboardingCompleted)
         root.put("userProfile", profileJson)
 
         // 2. Single-Location Trips (TripLocation)
@@ -142,12 +147,19 @@ object DatabaseBackupManager {
         if (root.has("userProfile")) {
             val pObj = root.getJSONObject("userProfile")
             val imgUri = pObj.optString("profileImageUri").takeIf { it.isNotBlank() }
+            val coverUri = pObj.optString("coverImageUri").takeIf { it.isNotBlank() }
+            val bio = pObj.optString("bio", "Exploring the paradise island of Sri Lanka 🇱🇰")
             profile = UserProfile(
                 userName = pObj.optString("userName", "Traveler"),
+                userEmail = pObj.optString("userEmail", ""),
+                authProvider = pObj.optString("authProvider", "GOOGLE"),
                 profileImageUri = imgUri,
+                coverImageUri = coverUri,
+                bio = bio,
                 homeLocationName = pObj.optString("homeLocationName", "Colombo"),
                 homeLatitude = pObj.optDouble("homeLatitude", 6.9271),
-                homeLongitude = pObj.optDouble("homeLongitude", 79.8612)
+                homeLongitude = pObj.optDouble("homeLongitude", 79.8612),
+                isOnboardingCompleted = pObj.optBoolean("isOnboardingCompleted", true)
             )
         }
 
@@ -257,29 +269,60 @@ object DatabaseBackupManager {
                 timelineDao.deleteAllTrips()
             }
 
-            // 1. Insert Single-Location Trips
+            val existingTrips = if (!overwriteExisting) tripDao.getAllTripsSync() else emptyList()
+            val existingJourneys = if (!overwriteExisting) timelineDao.getAllTripsWithStopsSync() else emptyList()
+
+            // 1. Insert or Replace Single-Location Trips (Deduplication)
             var tripsImported = 0
             for (trip in backupData.tripLocations) {
-                tripDao.insertTrip(trip.copy(id = 0))
+                val matchingExisting = existingTrips.firstOrNull { existing ->
+                    val coordsMatch = Math.abs(existing.latitude - trip.latitude) < 0.001 && Math.abs(existing.longitude - trip.longitude) < 0.001
+                    val nameMatch = existing.locationName.trim().equals(trip.locationName.trim(), ignoreCase = true)
+                    val titleMatch = existing.title.trim().equals(trip.title.trim(), ignoreCase = true)
+                    val sameDay = Math.abs(existing.dateEpochMillis - trip.dateEpochMillis) < 86_400_000L
+
+                    (coordsMatch && (nameMatch || titleMatch)) || (titleMatch && sameDay) || (nameMatch && sameDay)
+                }
+
+                if (matchingExisting != null) {
+                    // Replace / Update existing trip to prevent duplication
+                    tripDao.updateTrip(trip.copy(id = matchingExisting.id))
+                } else {
+                    tripDao.insertTrip(trip.copy(id = 0))
+                }
                 tripsImported++
             }
 
-            // 2. Insert Multi-Stop Journeys
+            // 2. Insert or Replace Multi-Stop Journeys (Deduplication)
             var journeysImported = 0
             var stopsImported = 0
             for (journey in backupData.multiStopJourneys) {
-                val newTripId = timelineDao.insertTrip(journey.trip.copy(tripId = 0))
-                journeysImported++
+                val matchingJourney = existingJourneys.firstOrNull { existing ->
+                    val titleMatch = existing.trip.tripTitle.trim().equals(journey.trip.tripTitle.trim(), ignoreCase = true)
+                    val originMatch = existing.trip.originName.trim().equals(journey.trip.originName.trim(), ignoreCase = true)
+                    val sameDay = Math.abs(existing.trip.startDateEpoch - journey.trip.startDateEpoch) < 86_400_000L
 
-                val newStops = journey.stops.mapIndexed { index, stop ->
-                    stop.copy(
-                        stopId = 0,
-                        parentTripId = newTripId,
-                        stopOrder = index + 1
-                    )
+                    titleMatch && (originMatch || sameDay)
                 }
-                timelineDao.insertStops(newStops)
-                stopsImported += newStops.size
+
+                if (matchingJourney != null) {
+                    // Update existing journey & replace its stops to prevent duplication
+                    val targetTripId = matchingJourney.trip.tripId
+                    timelineDao.updateTripWithStops(journey.trip.copy(tripId = targetTripId), journey.stops)
+                    stopsImported += journey.stops.size
+                } else {
+                    val newTripId = timelineDao.insertTrip(journey.trip.copy(tripId = 0))
+                    val newStops = journey.stops.mapIndexed { index, stop ->
+                        stop.copy(
+                            stopId = 0,
+                            parentTripId = newTripId,
+                            stopOrder = index + 1
+                        )
+                    }
+                    timelineDao.insertStops(newStops)
+                    stopsImported += newStops.size
+                }
+                journeysImported++
             }
 
             // 3. Restore User Profile if requested
@@ -288,6 +331,8 @@ object DatabaseBackupManager {
                 UserManager.getInstance(context).updateProfile(
                     name = prof.userName,
                     imageUri = prof.profileImageUri,
+                    coverUri = prof.coverImageUri,
+                    bio = prof.bio,
                     homeLocationName = prof.homeLocationName,
                     homeLat = prof.homeLatitude,
                     homeLng = prof.homeLongitude

@@ -33,6 +33,7 @@ enum class BackupTier(val title: String, val description: String) {
 object GoogleDriveBackupEngine {
     private const val TAG = "DriveBackupEngine"
     private const val APP_DATA_FOLDER_SPACE = "appDataFolder"
+    private const val BACKUP_FILE_NAME = "ceylonsteps_backup.json"
 
     suspend fun performBackup(
         context: Context,
@@ -46,7 +47,7 @@ object GoogleDriveBackupEngine {
             onProgress(10, "Initializing Google Drive AppData Sync...")
             
             val credential = GoogleAccountCredential.usingOAuth2(
-                context, listOf(DriveScopes.DRIVE_APPDATA)
+                context, listOf(DriveScopes.DRIVE_APPDATA, DriveScopes.DRIVE_FILE)
             )
             credential.selectedAccount = account.account
 
@@ -74,21 +75,40 @@ object GoogleDriveBackupEngine {
                 onProgress(70, "Preparing large video blobs...")
             }
 
-            // 3. Upload to Google Drive AppDataFolder
-            onProgress(90, "Uploading to secure Google Cloud storage...")
+            // 3. Upload or Update existing file in Google Drive AppDataFolder
+            onProgress(85, "Syncing to your personal Google Drive cloud...")
             
-            val fileMetadata = com.google.api.services.drive.model.File()
-            fileMetadata.name = "ceylonsteps_backup.json"
-            fileMetadata.parents = listOf(APP_DATA_FOLDER_SPACE)
+            val existingList = try {
+                driveService.files().list()
+                    .setSpaces(APP_DATA_FOLDER_SPACE)
+                    .setQ("name='$BACKUP_FILE_NAME' and trashed=false")
+                    .setFields("files(id, name)")
+                    .execute()
+            } catch (e: Exception) {
+                null
+            }
 
+            val existingFile = existingList?.files?.firstOrNull()
             val mediaContent = ByteArrayContent.fromString("application/json", jsonPayload)
-            
-            // Note: In a real app we'd check if file exists and update it, but for simplicity we create a new one.
-            val uploadedFile = driveService.files().create(fileMetadata, mediaContent)
-                .setFields("id")
-                .execute()
 
-            onProgress(100, "Backup complete! File ID: ${uploadedFile.id}")
+            val fileId = if (existingFile != null) {
+                val updated = driveService.files().update(existingFile.id, null, mediaContent)
+                    .setFields("id")
+                    .execute()
+                updated.id
+            } else {
+                val fileMetadata = com.google.api.services.drive.model.File().apply {
+                    name = BACKUP_FILE_NAME
+                    parents = listOf(APP_DATA_FOLDER_SPACE)
+                }
+                val created = driveService.files().create(fileMetadata, mediaContent)
+                    .setFields("id")
+                    .execute()
+                created.id
+            }
+
+            onProgress(100, "Backup successfully synced to Google Drive!")
+            Log.d(TAG, "Google Drive backup saved with ID: $fileId")
             RestoreResult(true, trips.size, journeys.size, 0, "Successfully backed up to Google Drive (${tier.name}).")
         } catch (e: Exception) {
             Log.e(TAG, "Drive backup failed", e)
@@ -96,15 +116,75 @@ object GoogleDriveBackupEngine {
         }
     }
 
+    /**
+     * Fast background auto-sync without progress dialogs
+     */
+    suspend fun performAutoSync(
+        context: Context,
+        account: GoogleSignInAccount,
+        trips: List<TripLocation>,
+        journeys: List<TripWithStops>
+    ): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val credential = GoogleAccountCredential.usingOAuth2(
+                context, listOf(DriveScopes.DRIVE_APPDATA, DriveScopes.DRIVE_FILE)
+            )
+            credential.selectedAccount = account.account
+
+            val driveService = Drive.Builder(
+                NetHttpTransport(),
+                GsonFactory.getDefaultInstance(),
+                credential
+            )
+            .setApplicationName("CeylonSteps")
+            .build()
+
+            val jsonPayload = DatabaseBackupManager.exportToJson(
+                com.example.data.repository.UserManager.getInstance(context).getUserProfile(),
+                trips,
+                journeys
+            )
+
+            val existingList = try {
+                driveService.files().list()
+                    .setSpaces(APP_DATA_FOLDER_SPACE)
+                    .setQ("name='$BACKUP_FILE_NAME' and trashed=false")
+                    .setFields("files(id, name)")
+                    .execute()
+            } catch (e: Exception) {
+                null
+            }
+
+            val existingFile = existingList?.files?.firstOrNull()
+            val mediaContent = ByteArrayContent.fromString("application/json", jsonPayload)
+
+            if (existingFile != null) {
+                driveService.files().update(existingFile.id, null, mediaContent).execute()
+            } else {
+                val fileMetadata = com.google.api.services.drive.model.File().apply {
+                    name = BACKUP_FILE_NAME
+                    parents = listOf(APP_DATA_FOLDER_SPACE)
+                }
+                driveService.files().create(fileMetadata, mediaContent).execute()
+            }
+
+            Log.d(TAG, "Auto-sync to Google Drive completed successfully")
+            true
+        } catch (e: Exception) {
+            Log.w(TAG, "Auto-sync to Google Drive background failed: ${e.message}")
+            false
+        }
+    }
+
     suspend fun restoreFromDrive(
         context: Context,
         account: GoogleSignInAccount,
-        onProgress: (Int, String) -> Unit
+        onProgress: (Int, String) -> Unit = { _, _ -> }
     ): String? = withContext(Dispatchers.IO) {
         try {
             onProgress(10, "Connecting to Google Drive...")
             val credential = GoogleAccountCredential.usingOAuth2(
-                context, listOf(DriveScopes.DRIVE_APPDATA)
+                context, listOf(DriveScopes.DRIVE_APPDATA, DriveScopes.DRIVE_FILE)
             )
             credential.selectedAccount = account.account
             val driveService = Drive.Builder(
@@ -118,7 +198,7 @@ object GoogleDriveBackupEngine {
             onProgress(40, "Looking for backup file...")
             val result = driveService.files().list()
                 .setSpaces(APP_DATA_FOLDER_SPACE)
-                .setQ("name='ceylonsteps_backup.json'")
+                .setQ("name='$BACKUP_FILE_NAME' and trashed=false")
                 .setFields("files(id, name)")
                 .execute()
 
@@ -140,4 +220,43 @@ object GoogleDriveBackupEngine {
         }
     }
 
+    /**
+     * Restores data directly from Google Drive and merges into Room database and User profile
+     */
+    suspend fun restoreAndApplyFromDrive(
+        context: Context,
+        account: GoogleSignInAccount,
+        database: com.example.data.db.AppDatabase
+    ): RestoreResult = withContext(Dispatchers.IO) {
+        val json = restoreFromDrive(context, account)
+        if (json.isNullOrBlank()) {
+            return@withContext RestoreResult(
+                isSuccess = false,
+                tripsImported = 0,
+                journeysImported = 0,
+                stopsImported = 0,
+                message = "No cloud backup found on your Google Drive."
+            )
+        }
+
+        try {
+            val backupData = DatabaseBackupManager.parseJson(json)
+            DatabaseBackupManager.restoreDatabase(
+                context = context,
+                database = database,
+                backupData = backupData,
+                overwriteExisting = false,
+                restoreUserProfile = true
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Error applying backup data", e)
+            RestoreResult(
+                isSuccess = false,
+                tripsImported = 0,
+                journeysImported = 0,
+                stopsImported = 0,
+                message = "Failed to restore backup: ${e.message}"
+            )
+        }
+    }
 }

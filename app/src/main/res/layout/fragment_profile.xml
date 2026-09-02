@@ -37,7 +37,7 @@
                         android:background="@drawable/bg_input_field"
                         android:contentDescription="Profile Photo"
                         android:scaleType="centerCrop"
-                        android:src="@drawable/ic_ceylonsteps_brand_logo"
+                        android:src="@drawable/ic_ceylonsteps_brand_logo" />
 
                     <TextView
                         android:id="@+id/tv_profile_initials"

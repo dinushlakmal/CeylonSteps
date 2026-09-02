@@ -32,12 +32,7 @@ class SplashActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             delay(1400L)
-            val userManager = UserManager.getInstance(this@SplashActivity)
-            if (userManager.isOnboardingCompleted()) {
-                startActivity(Intent(this@SplashActivity, MainActivity::class.java))
-            } else {
-                startActivity(Intent(this@SplashActivity, OnboardingActivity::class.java))
-            }
+            startActivity(Intent(this@SplashActivity, MainActivity::class.java))
             finish()
         }
     }
