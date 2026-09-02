@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="googlee1fc35545edd459a">
+    <title>Terms of Service — CeylonSteps</title>
+    <meta name="description" content="Terms of Service and conditions of use for CeylonSteps travel journal and route tracking application.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f766e;
+            --primary-hover: #115e59;
+            --primary-light: #ccfbf1;
+            --dark: #0f172a;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-page);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 8%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--dark);
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 820px;
+            margin: 40px auto;
+            padding: 40px;
+            background: var(--card-bg);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-section {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 24px;
+            margin-bottom: 28px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--dark);
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .date-text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        h2 {
+            color: var(--dark);
+            font-size: 19px;
+            font-weight: 700;
+            margin-top: 32px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 18px;
+            background-color: var(--primary);
+            border-radius: 2px;
+        }
+
+        p {
+            font-size: 15px;
+            color: var(--text-main);
+            margin-bottom: 14px;
+        }
+
+        ul {
+            padding-left: 22px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            font-size: 14.5px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: #f1f5f9;
+            border-left: 4px solid var(--primary);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 24px 0;
+        }
+
+        .highlight-box p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        footer {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                margin: 20px 16px;
+                padding: 24px 20px;
+            }
+            h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="brand-logo">
+            <span>🇱🇰</span> CeylonSteps
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="https://github.com/dinushlakmal/CeylonSteps" target="_blank">GitHub</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header-section">
+            <div class="badge">Legal Terms</div>
+            <h1>Terms of Service</h1>
+            <div class="date-text">Effective Date: September 1, 2026</div>
+        </div>
+
+        <section>
+            <p>Welcome to <strong>CeylonSteps</strong>. By downloading, installing, accessing, or using the CeylonSteps mobile application, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the application.</p>
+
+            <h2>1. Use of the Application</h2>
+            <p>CeylonSteps is provided for personal, non-commercial travel journaling, route mapping, and location archiving across Sri Lanka. You agree to:</p>
+            <ul>
+                <li>Use the application in compliance with all applicable local, national, and international traffic, park, and environmental laws.</li>
+                <li>Ensure you do not operate the application or interact with its mapping features while actively driving or handling a motor vehicle.</li>
+                <li>Respect private property, cultural monuments, wildlife reserves, and local regulations when recording travel stops or capturing media.</li>
+            </ul>
+
+            <h2>2. User Content & Data Ownership</h2>
+            <p>You retain full intellectual property ownership of all travel logs, GPS route data, notes, photos, and media items you import or record within CeylonSteps:</p>
+            <ul>
+                <li><strong>Local Storage:</strong> Your content is stored locally on your device by default. We do not inspect, monetize, or license your private travel journal content.</li>
+                <li><strong>Google Drive Storage:</strong> Any backups transferred to your private Google Drive account remain solely under your ownership and authentication credentials.</li>
+            </ul>
+
+            <h2>3. Travel & Navigation Disclaimer</h2>
+            <div class="highlight-box">
+                <p><strong>Safety Warning:</strong> CeylonSteps is a personal travel journal and recreational route logger, not an official emergency navigation system or live traffic safety device.</p>
+            </div>
+            <ul>
+                <li>Curated destinations, coordinate markers, estimated distances, and offline OpenStreetMap overlays are provided for informational and planning purposes only.</li>
+                <li>Terrain, weather conditions, hiking trails (e.g., Knuckles Mountain Range), river crossings, and coastal conditions can change rapidly. Always exercise independent caution and rely on verified local guides.</li>
+                <li>We do not warrant that all road networks, off-road hiking trails, or pre-seeded points of interest will be free from inaccuracies, closures, or hazards.</li>
+            </ul>
+
+            <h2>4. Third-Party Services</h2>
+            <p>The application interacts with third-party software and APIs, including OpenStreetMap (osmdroid) for cartography tiles and Google Play Services / Google Drive API for identity and cloud storage:</p>
+            <ul>
+                <li>Your access to Google Drive services is subject to the <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">Google Terms of Service</a>.</li>
+                <li>We are not responsible for any service disruptions, quota limits, or data policies enforced by third-party infrastructure providers.</li>
+            </ul>
+
+            <h2>5. Disclaimer of Warranties & Limitation of Liability</h2>
+            <p>CeylonSteps is provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis without warranties of any kind, whether express or implied. To the maximum extent permitted by applicable law:</p>
+            <ul>
+                <li>We shall not be liable for any direct, indirect, incidental, or consequential damages resulting from data loss, device malfunction, unauthorized account access, or physical travel incidents.</li>
+                <li>You are solely responsible for maintaining local copies and cloud backups of your device's travel media.</li>
+            </ul>
+
+            <h2>6. Modifications to Terms</h2>
+            <p>We reserve the right to revise or update these Terms of Service at any time. Any changes will be reflected directly on this hosted page with an updated effective date.</p>
+
+            <h2>7. Contact & Inquiries</h2>
+            <p>For questions or inquiries regarding these Terms of Service, please consult the project repository or reach out via:</p>
+            <p><strong>Project Repository:</strong> <a href="https://github.com/dinushlakmal/CeylonSteps" target="_blank">github.com/dinushlakmal/CeylonSteps</a></p>
+        </section>
+
+        <footer>
+            <div>&copy; 2026 CeylonSteps. All rights reserved.</div>
+            <div>
+                <a href="index.html">Home</a> &bull; 
+                <a href="privacy.html">Privacy Policy</a>
+            </div>
+        </footer>
+    </div>
+
+</body>
+</html>
